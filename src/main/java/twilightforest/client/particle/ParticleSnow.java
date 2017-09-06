@@ -32,7 +32,7 @@ public class ParticleSnow extends Particle {
 		this.particleMaxAge = (int) ((float) this.particleMaxAge * par14);
 		this.canCollide = true;
 
-		this.particleTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(new ResourceLocation(TwilightForestMod.ID, "items/snow_" + (rand.nextInt(4))).toString());
+		this.particleTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(new ResourceLocation(TwilightForestMod.ID, "particles/snow_" + (rand.nextInt(4))).toString());
 
 		this.onUpdate();
 	}

@@ -39,11 +39,11 @@ public class TFClientEvents {
 
 	@SubscribeEvent
 	public static void texStitch(TextureStitchEvent.Pre evt) {
-		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "items/snow_0"));
-		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "items/snow_1"));
-		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "items/snow_2"));
-		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "items/snow_3"));
-		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "items/annihilate_particle"));
+		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "particles/snow_0"));
+		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "particles/snow_1"));
+		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "particles/snow_2"));
+		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "particles/snow_3"));
+		evt.getMap().registerSprite(new ResourceLocation(TwilightForestMod.ID, "particles/annihilate_particle"));
 	}
 
 	/**
