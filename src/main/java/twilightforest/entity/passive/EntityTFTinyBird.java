@@ -28,6 +28,10 @@ import twilightforest.TFSounds;
 import twilightforest.entity.ai.EntityAITFBirdFly;
 
 public class EntityTFTinyBird extends EntityTFBird {
+	
+	private static final int MAX_WAYPOINT_TRIALS = 10;
+	private static final int FLIGHT_UPDRIFT_WHEN_IN_LIQUID = 5;
+	private static final int FLIGHT_TIRED_AFTER_TICKS = 100;
 
 	private static final DataParameter<Byte> DATA_BIRDTYPE = EntityDataManager.createKey(EntityTFTinyBird.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> DATA_BIRDFLAGS = EntityDataManager.createKey(EntityTFTinyBird.class, DataSerializers.BYTE);
@@ -154,6 +158,8 @@ public class EntityTFTinyBird extends EntityTFBird {
 
 		if (this.isBirdLanded()) {
 			this.currentFlightTime = 0;
+			
+			IBlockState atBlock = this.world.getBlockState(getPosition());
 
 			if (this.rand.nextInt(200) == 0 && !isLandableBlock(new BlockPos(posX, posY - 1, posZ))) {
 				this.setIsBirdLanded(false);
@@ -161,7 +167,7 @@ public class EntityTFTinyBird extends EntityTFBird {
 				this.motionY = 0.4;
 				//FMLLog.info("bird taking off because it is no longer on land");
 			} else {
-				if (isSpooked()) {
+				if (isSpooked() || atBlock.causesSuffocation() || atBlock.getMaterial().isLiquid() ) {
 					this.setIsBirdLanded(false);
 					this.world.playEvent(1025, new BlockPos(this), 0);
 					this.motionY = 0.4;
@@ -170,8 +176,9 @@ public class EntityTFTinyBird extends EntityTFBird {
 			}
 		} else {
 			this.currentFlightTime++;
+	         int numTrials = 0;
 
-			// [VanillaCopy] Modified version of last half of EntityBat.updateAITasks. Edits noted
+/*			// [VanillaCopy] Modified version of last half of EntityBat.updateAITasks. Edits noted
 			if (this.spawnPosition != null && (!this.world.isAirBlock(this.spawnPosition) || this.spawnPosition.getY() < 1)) {
 				this.spawnPosition = null;
 			}
@@ -180,6 +187,70 @@ public class EntityTFTinyBird extends EntityTFBird {
 				// TF - modify shift factor of Y
 				int yTarget = this.currentFlightTime < 100 ? 2 : 4;
 				this.spawnPosition = new BlockPos((int) this.posX + this.rand.nextInt(7) - this.rand.nextInt(7), (int) this.posY + this.rand.nextInt(6) - yTarget, (int) this.posZ + this.rand.nextInt(7) - this.rand.nextInt(7));
+			} */
+	        
+	         // Try to find next flight spot
+			do {
+				if (numTrials++ >= MAX_WAYPOINT_TRIALS)
+					break;
+				boolean needToEscapeBadSpots = numTrials >= MAX_WAYPOINT_TRIALS / 2;
+				
+				BlockPos prevPos = this.spawnPosition;
+				if (this.spawnPosition == null || this.rand.nextInt(30) == 0
+						|| this.spawnPosition.distanceSq((double) ((int) this.posX), (double) ((int) this.posY),
+								(double) ((int) this.posZ)) < ((needToEscapeBadSpots)? 1.5D : 4.0D)) {
+					int xTargetOffset;
+					int yTargetOffset;
+					int zTargetOffset;
+
+					xTargetOffset = this.rand.nextInt(7) - this.rand.nextInt(7);
+					zTargetOffset = this.rand.nextInt(7) - this.rand.nextInt(7);
+					if (!needToEscapeBadSpots) {
+						// TF - modify shift factor of Y
+						// More tendency to landing after longer flights.
+						yTargetOffset = this.currentFlightTime < FLIGHT_TIRED_AFTER_TICKS ? 2 : 4;
+						yTargetOffset = this.rand.nextInt(6) - yTargetOffset;
+					} else {
+						// No tendency to landing if still not able to find a good spot.
+						yTargetOffset = this.rand.nextInt(3);	// NOTE: This one could make the bird suffocate in water if a cave is underneath water and bird aims for it. Therefore smaller thresholds used.
+						if( this.rand.nextBoolean() )
+							yTargetOffset = -yTargetOffset;		
+
+						xTargetOffset = this.rand.nextInt(5) + 2;
+						if( this.rand.nextBoolean() )
+							xTargetOffset = -xTargetOffset;
+
+						zTargetOffset = this.rand.nextInt(5) + 2;
+						if( this.rand.nextBoolean() )
+							zTargetOffset = -zTargetOffset;
+					}
+
+/*					this.spawnPosition = new BlockPos((int) this.posX + this.rand.nextInt(7) - this.rand.nextInt(7),
+							(int) this.posY + this.rand.nextInt(6) - yTarget,
+							(int) this.posZ + this.rand.nextInt(7) - this.rand.nextInt(7)); */
+					this.spawnPosition = getPosition().add(xTargetOffset, yTargetOffset, zTargetOffset);
+				}
+
+				// Reject some cases
+				if (!this.world.isAirBlock(this.spawnPosition) || this.spawnPosition.getY() < 1)
+					this.spawnPosition = null;
+				else if ( prevPos != null ) {
+					if( prevPos.getX() == this.spawnPosition.getX() && prevPos.getZ() == this.spawnPosition.getZ() )
+						this.spawnPosition = null;	// Reject case of flying vertically (results to undefined rotation) or if the new target point matches the old one.
+				}
+			} while (this.spawnPosition == null);
+			
+			// Fallback case
+			if (this.spawnPosition == null) {
+				IBlockState blockState = super.world.getBlockState(getPosition());
+				
+				// If in liquid, then try to swim up.
+				if (blockState.getMaterial().isLiquid())
+					this.spawnPosition = getPosition().add(rand.nextInt(2) - rand.nextInt(2), FLIGHT_UPDRIFT_WHEN_IN_LIQUID + rand.nextInt(4), rand.nextInt(2) - rand.nextInt(2));
+//					this.spawnPosition = new BlockPos((int) posX + rand.nextInt(2) - rand.nextInt(2),
+//							(int) posY + 5 + rand.nextInt(4), (int) posZ + rand.nextInt(2) - rand.nextInt(2));
+				else
+					this.spawnPosition = getPosition();
 			}
 
 			double d0 = (double) this.spawnPosition.getX() + 0.5D - this.posX;
