@@ -5,10 +5,10 @@
       "data": 5
     },
     "title": {
-      "translate": "advancement.twilightKillNaga"
+      "translate": "advancement.twilight_kill_naga"
     },
     "description": {
-      "translate": "advancement.twilightKillNaga.desc"
+      "translate": "advancement.twilight_kill_naga.desc"
     },
     "frame": "goal"
   },
@@ -30,6 +30,12 @@
             "item": "twilightforest:naga_scale"
           }
         ]
+      }
+    },
+    "kill_mob": {
+      "trigger": "twilightforest:has_advancement",
+      "conditions": {
+        "advancement": "twilightforest:twilight_hunter"
       }
     }
   }

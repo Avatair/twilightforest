@@ -5,10 +5,10 @@
       "data": 5
     },
     "title": {
-      "translate": "advancement.twilightProgressGlacier"
+      "translate": "advancement.twilight_progress_glacier"
     },
     "description": {
-      "translate": "advancement.twilightProgressGlacier.desc"
+      "translate": "advancement.twilight_progress_glacier.desc"
     },
     "frame": "goal"
   },
@@ -20,6 +20,12 @@
         "entity": {
           "type": "twilightforest:snow_queen"
         }
+      }
+    },
+    "previous_progression": {
+      "trigger": "twilightforest:has_advancement",
+      "conditions": {
+        "advancement": "twilightforest:progress_yeti"
       }
     }
   }

@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -194,9 +195,6 @@ public class ChunkGeneratorTwilightForest implements IChunkGenerator {
 						double d13 = (d4 - d2) * d9;
 
 						for (int i3 = 0; i3 < 4; ++i3) {
-							int j3 = i3 + k * 4 << 12 | 0 + j1 * 4 << 8 | k2 * 8 + l2;
-							short short1 = 256;
-							j3 -= short1;
 							double d14 = 0.25D;
 							double d16 = (d11 - d10) * d14;
 							double d15 = d10 - d16;
@@ -501,7 +499,6 @@ public class ChunkGeneratorTwilightForest implements IChunkGenerator {
 
 		// sets the groundlevel to the mazeheight
 		for (int y = 0; y <= 127; y++) {
-			int index = (x * 16 + z) * TFWorld.CHUNKHEIGHT + y;
 			Block b = primer.getBlockState(x, y, z).getBlock();
 			if (y < mazeheight && (b == Blocks.AIR || b == Blocks.WATER)) {
 				primer.setBlockState(x, y, z, Blocks.STONE.getDefaultState());
@@ -673,12 +670,6 @@ public class ChunkGeneratorTwilightForest implements IChunkGenerator {
 				}
 			}
 		}
-	}
-
-	private float pseudoRand(int bx, int bz) {
-		Random rand = new Random(this.world.getSeed() + (bx * 321534781) ^ (bz * 756839));
-		rand.setSeed(rand.nextLong());
-		return rand.nextFloat();
 	}
 
 	private void addGlaciers(int chunkX, int chunkZ, ChunkPrimer primer, Biome biomes[]) {
@@ -916,7 +907,11 @@ public class ChunkGeneratorTwilightForest implements IChunkGenerator {
 	@Nullable
 	@Override
 	public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored) {
-		// todo 1.10
+		if(structureName.equalsIgnoreCase(hollowTreeGenerator.getStructureName()))
+			return hollowTreeGenerator.getNearestStructurePos(worldIn, position, findUnexplored);
+		TFFeature feature = TFFeature.getFeatureByName(new ResourceLocation(structureName));
+		if (feature != null)
+			return TFFeature.findNearestFeaturePosBySpacing(worldIn, feature, position, 20, 11, 10387313, true, 100, findUnexplored);
 		return null;
 	}
 
@@ -973,6 +968,6 @@ public class ChunkGeneratorTwilightForest implements IChunkGenerator {
 
 	@Override
 	public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
-		return false; // todo 1.12
+		return structureName.equalsIgnoreCase(hollowTreeGenerator.getStructureName()) ? hollowTreeGenerator.isInsideStructure(pos) : TFFeature.getFeatureByName(new ResourceLocation(structureName)) != null;
 	}
 }

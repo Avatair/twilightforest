@@ -4,17 +4,19 @@
       "item": "twilightforest:crumble_horn"
     },
     "title": {
-      "translate": "advancement.twilightQuestRam"
+      "translate": "advancement.twilight_quest_ram"
     },
     "description": {
-      "translate": "advancement.twilightQuestRam.desc"
+      "translate": "advancement.twilight_quest_ram.desc"
     }
   },
   "parent": "twilightforest:root",
-  "__comment": "This is triggered by code. In the future, it may become data-driven",
   "criteria": {
-    "code_triggered": {
-      "trigger": "minecraft:impossible"
+    "quest_ram_complete": {
+      "trigger": "twilightforest:complete_quest_ram"
     }
+  },
+  "rewards": {
+    "experience": 100
   }
 }

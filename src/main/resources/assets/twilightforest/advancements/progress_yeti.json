@@ -4,10 +4,10 @@
       "item": "twilightforest:alpha_fur"
     },
     "title": {
-      "translate": "advancement.twilightProgressYeti"
+      "translate": "advancement.twilight_progress_yeti"
     },
     "description": {
-      "translate": "advancement.twilightProgressYeti.desc"
+      "translate": "advancement.twilight_progress_yeti.desc"
     },
     "frame": "goal"
   },
@@ -19,6 +19,12 @@
         "entity": {
           "type": "twilightforest:yeti_alpha"
         }
+      }
+    },
+    "previous_progression": {
+      "trigger": "twilightforest:has_advancement",
+      "conditions": {
+        "advancement": "twilightforest:progress_ur_ghast"
       }
     }
   }

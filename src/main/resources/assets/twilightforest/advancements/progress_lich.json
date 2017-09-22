@@ -5,21 +5,27 @@
       "data": 1
     },
     "title": {
-      "translate": "advancement.twilightKillLich"
+      "translate": "advancement.twilight_kill_lich"
     },
     "description": {
-      "translate": "advancement.twilightKillLich.desc"
+      "translate": "advancement.twilight_kill_lich.desc"
     },
     "frame": "goal"
   },
   "parent": "twilightforest:progress_naga",
   "criteria": {
-    "lich": {
+    "kill_lich": {
       "trigger": "minecraft:player_killed_entity",
       "conditions": {
         "entity": {
           "type": "twilightforest:lich"
         }
+      }
+    },
+    "kill_naga": {
+      "trigger": "twilightforest:has_advancement",
+      "conditions": {
+        "advancement": "twilightforest:progress_naga"
       }
     }
   }

@@ -1,6 +1,5 @@
 package twilightforest.block;
 
-import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockPlanks;
@@ -24,7 +23,6 @@ import twilightforest.client.ModelRegisterCallback;
 import twilightforest.client.ModelUtils;
 import twilightforest.item.TFItems;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Random;
@@ -123,7 +121,7 @@ public class BlockTFLeaves extends BlockLeaves implements ModelRegisterCallback 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerModel() {
-		ModelLoader.setCustomStateMapper(this, new StateMap.Builder().ignore(CHECK_DECAY).ignore(DECAYABLE).build());
+		ModelLoader.setCustomStateMapper(this, new StateMap.Builder().ignore(CHECK_DECAY, DECAYABLE).build());
 		ModelUtils.registerToStateSingleVariant(this, VARIANT);
 	}
 

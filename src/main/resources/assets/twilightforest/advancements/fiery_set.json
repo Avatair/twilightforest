@@ -4,10 +4,10 @@
       "item": "twilightforest:fiery_sword"
     },
     "title": {
-      "translate": "advancement.twilightFierySet"
+      "translate": "advancement.twilight_fiery_set"
     },
     "description": {
-      "translate": "advancement.twilightFierySet.desc"
+      "translate": "advancement.twilight_fiery_set.desc"
     },
     "frame": "challenge"
   },
@@ -77,5 +77,8 @@
   "requirements": [
     [ "sword", "pick" ],
     [ "head", "chest", "legs", "feet" ]
-  ]
+  ],
+  "rewards": {
+    "experience": 75
+  }
 }

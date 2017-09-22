@@ -5,10 +5,10 @@
       "data": 3
     },
     "title": {
-      "translate": "advancement.twilightProgressUrghast"
+      "translate": "advancement.twilight_progress_urghast"
     },
     "description": {
-      "translate": "advancement.twilightProgressUrghast.desc"
+      "translate": "advancement.twilight_progress_urghast.desc"
     },
     "frame": "goal"
   },
@@ -20,6 +20,12 @@
         "entity": {
           "type": "twilightforest:ur_ghast"
         }
+      }
+    },
+    "previous_progression": {
+      "trigger": "twilightforest:has_advancement",
+      "conditions": {
+        "advancement": "twilightforest:progress_knights"
       }
     }
   }
