@@ -1,10 +1,12 @@
 package twilightforest.entity.boss;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityMultiPart;
+import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
@@ -14,7 +16,6 @@ import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityMoveHelper;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -28,7 +29,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.BossInfo;
 import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.EnumDifficulty;
@@ -39,13 +39,9 @@ import twilightforest.TFSounds;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFBossSpawner;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.BossVariant;
+import twilightforest.enums.BossVariant;
 import twilightforest.world.ChunkGeneratorTwilightForest;
 import twilightforest.world.TFWorld;
-
-import java.util.Arrays;
-import java.util.Objects;
-
 
 public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	public static final ResourceLocation LOOT_TABLE = new ResourceLocation(TwilightForestMod.ID, "entities/naga");
@@ -54,6 +50,7 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	private static final int LEASH_X = 46;
 	private static final int LEASH_Y = 7;
 	private static final int LEASH_Z = 46;
+	private static final double DEFAULT_SPEED = 0.3;
 
 	private int currentSegmentCount = 0; // not including head
 	private final float healthPerSegment;
@@ -61,23 +58,23 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	private AIMovementPattern movementAI;
 	private int ticksSinceDamaged = 0;
 
-	private final BossInfoServer bossInfo = new BossInfoServer(new TextComponentTranslation("entity." + EntityList.getKey(this) + ".name"), BossInfo.Color.GREEN, BossInfo.Overlay.PROGRESS);
+	private final BossInfoServer bossInfo = new BossInfoServer(getDisplayName(), BossInfo.Color.GREEN, BossInfo.Overlay.NOTCHED_10);
 
 	private final AttributeModifier slowSpeed = new AttributeModifier("Naga Slow Speed", 0.25F, 0).setSaved(false);
-	private final AttributeModifier fastSpeed = new AttributeModifier("Naga Fast Speed", 1.25F, 0).setSaved(false);
+	private final AttributeModifier fastSpeed = new AttributeModifier("Naga Fast Speed", 0.50F, 0).setSaved(false);
 
 
 	public EntityTFNaga(World world) {
 		super(world);
-
 		this.setSize(1.75f, 3.0f);
 		this.stepHeight = 2;
-
 		this.healthPerSegment = getMaxHealth() / 10;
-		setSegmentsPerHealth();
-
 		this.experienceValue = 217;
 		this.ignoreFrustumCheck = true;
+
+		for (int i = 0; i < bodySegments.length; i++) {
+			bodySegments[i] = new EntityTFNagaSegment(this, i);
+		}
 
 		this.goNormal();
 	}
@@ -145,7 +142,7 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 			return target != null
 					&& target.getEntityBoundingBox().maxY > taskOwner.getEntityBoundingBox().minY - 2.5
 					&& target.getEntityBoundingBox().minY < taskOwner.getEntityBoundingBox().maxY + 2.5
-					&& taskOwner.getDistanceSqToEntity(target) <= 16.0D
+					&& taskOwner.getDistanceSqToEntity(target) <= 4.0D
 					&& taskOwner.getEntitySenses().canSee(target);
 
 		}
@@ -178,25 +175,28 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 
 		@Override
 		public boolean shouldExecute() {
-			return taskOwner.getAttackTarget() != null && taskOwner.isCollidedHorizontally;
+			return taskOwner.world.getGameRules().getBoolean("mobGriefing") /*&& taskOwner.getAttackTarget() != null*/ && taskOwner.isCollidedHorizontally;
 		}
 
 		@Override
 		public void startExecuting() {
 			// NAGA SMASH!
-			AxisAlignedBB bb = taskOwner.getEntityBoundingBox();
-			int minx = MathHelper.floor(bb.minX - 0.5D);
-			int miny = MathHelper.floor(bb.minY + 1.01D);
-			int minz = MathHelper.floor(bb.minZ - 0.5D);
-			int maxx = MathHelper.floor(bb.maxX + 0.5D);
-			int maxy = MathHelper.floor(bb.maxY + 0.001D);
-			int maxz = MathHelper.floor(bb.maxZ + 0.5D);
-			if (taskOwner.getWorld().isAreaLoaded(new BlockPos(minx, miny, minz), new BlockPos(maxx, maxy, maxz))) {
-				for (int dx = minx; dx <= maxx; dx++) {
-					for (int dy = miny; dy <= maxy; dy++) {
-						for (int dz = minz; dz <= maxz; dz++) {
-							// todo limit what can be broken
-							taskOwner.getWorld().destroyBlock(new BlockPos(dx, dy, dz), true);
+			if (!taskOwner.getWorld().isRemote) {
+				AxisAlignedBB bb = taskOwner.getEntityBoundingBox();
+				int minx = MathHelper.floor(bb.minX - 0.75D);
+				int miny = MathHelper.floor(bb.minY + 1.01D);
+				int minz = MathHelper.floor(bb.minZ - 0.75D);
+				int maxx = MathHelper.floor(bb.maxX + 0.75D);
+				int maxy = MathHelper.floor(bb.maxY + 0.0D);
+				int maxz = MathHelper.floor(bb.maxZ + 0.75D);
+				if (taskOwner.getWorld().isAreaLoaded(new BlockPos(minx, miny, minz), new BlockPos(maxx, maxy, maxz))) {
+					for (int dx = minx; dx <= maxx; dx++) {
+						for (int dy = miny; dy <= maxy; dy++) {
+							for (int dz = minz; dz <= maxz; dz++) {
+								BlockPos pos = new BlockPos(dx, dy, dz);
+								if (taskOwner.getWorld().getBlockState(pos).getBlockHardness(taskOwner.getWorld(), pos) >= 0)
+									taskOwner.getWorld().destroyBlock(pos, true);
+							}
 						}
 					}
 				}
@@ -346,11 +346,38 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	}
 
 	@Override
+	public void onLivingUpdate() {
+		super.onLivingUpdate();
+
+		if (!world.isRemote && this.world.getGameRules().getBoolean("mobGriefing")) {
+			AxisAlignedBB bb = this.getEntityBoundingBox();
+			int minx = MathHelper.floor(bb.minX - 0.75D);
+			int miny = MathHelper.floor(bb.minY + 1.01D);
+			int minz = MathHelper.floor(bb.minZ - 0.75D);
+			int maxx = MathHelper.floor(bb.maxX + 0.75D);
+			int maxy = MathHelper.floor(bb.maxY + 0.0D);
+			int maxz = MathHelper.floor(bb.maxZ + 0.75D);
+			if (this.getWorld().isAreaLoaded(new BlockPos(minx, miny, minz), new BlockPos(maxx, maxy, maxz))) {
+				for (int dx = minx; dx <= maxx; dx++) {
+					for (int dy = miny; dy <= maxy; dy++) {
+						for (int dz = minz; dz <= maxz; dz++) {
+							BlockPos pos = new BlockPos(dx, dy, dz);
+							IBlockState state = this.getWorld().getBlockState(pos);
+							if (state.getMaterial() == Material.LEAVES && state.getBlockHardness(this.getWorld(), pos) >= 0)
+								this.getWorld().destroyBlock(pos, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(getMaxHealthPerDifficulty());
-		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.75D);
-		this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(6.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(DEFAULT_SPEED);
+		this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(5.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(80.0D);
 	}
 
@@ -361,19 +388,20 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 		int oldSegments = this.currentSegmentCount;
 		int newSegments = MathHelper.clamp((int) ((this.getHealth() / healthPerSegment) + (getHealth() > 0 ? 2 : 0)), 0, MAX_SEGMENTS);
 		this.currentSegmentCount = newSegments;
-		if (newSegments != oldSegments) {
-			if (newSegments < oldSegments) {
-				for (int i = newSegments; i < oldSegments; i++) {
-					if (bodySegments[i] != null) {
-						bodySegments[i].selfDestruct();
-						//bodySegments[i] = null;
-					}
-				}
-			} else {
-				this.spawnBodySegments();
+		if (newSegments < oldSegments) {
+			for (int i = newSegments; i < oldSegments; i++) {
+				bodySegments[i].selfDestruct();
 			}
+		} else if (newSegments > oldSegments) {
+			this.activateBodySegments();
 		}
 
+		if (!world.isRemote) {
+			double newSpeed = DEFAULT_SPEED - newSegments * (-0.2F / 12F);
+			if (newSpeed < 0)
+				newSpeed = 0;
+			this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(newSpeed);
+		}
 	}
 
 	@Override
@@ -414,9 +442,7 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 
 		// update bodySegments parts
 		for (EntityTFNagaSegment segment : bodySegments) {
-			if (segment != null) {
-				this.world.updateEntityWithOptionalForce(segment, true);
-			}
+			this.world.updateEntityWithOptionalForce(segment, true);
 		}
 
 		moveSegments();
@@ -444,6 +470,11 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 			} else {
 				vec3d = getNavigator().getPath().getPosition(this);
 			}
+		}
+
+		if (!isWithinHomeDistanceCurrentPosition()) {
+			setAttackTarget(null);
+			getNavigator().setPath(getNavigator().getPathToPos(getHomePosition()), 1.0F);
 		}
 
 		// BOSS BAR!
@@ -490,6 +521,9 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	}
 
 	private void crumbleBelowTarget(int range) {
+		if (!world.getGameRules().getBoolean("mobGriefing"))
+			return;
+
 		int floor = (int) getEntityBoundingBox().minY;
 		int targetY = (int) getAttackTarget().getEntityBoundingBox().minY;
 
@@ -503,8 +537,9 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 			}
 
 			BlockPos pos = new BlockPos(dx, dy, dz);
+			IBlockState state = world.getBlockState(pos);
 
-			if (!world.isAirBlock(pos)) {
+			if (state.getBlockHardness(world, pos) >= 0.0F && !state.getBlock().isAir(state, world, pos)) {
 				// todo limit what can be broken
 				world.destroyBlock(pos, true);
 
@@ -576,15 +611,15 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	}
 
 	@Override
-	public boolean attackEntityFrom(DamageSource damagesource, float i) {
-		// reject damage from outside of our home radius
-		if (damagesource.getTrueSource() != null && !this.isEntityWithinHomeArea(damagesource.getTrueSource())
-				|| damagesource.getImmediateSource() != null && !this.isEntityWithinHomeArea(damagesource.getImmediateSource())) {
-			return false;
-		}
+	public boolean isEntityInvulnerable(DamageSource src) {
+		return src.getTrueSource() != null && !this.isEntityWithinHomeArea(src.getTrueSource()) // reject damage from outside of our home radius
+				|| src.getImmediateSource() != null && !this.isEntityWithinHomeArea(src.getImmediateSource())
+				|| src.isFireDamage() || src.isExplosion() || super.isEntityInvulnerable(src);
+	}
 
-		if (super.attackEntityFrom(damagesource, i)) {
-			setSegmentsPerHealth();
+	@Override
+	public boolean attackEntityFrom(DamageSource damagesource, float i) {
+		if (damagesource != DamageSource.FALL && super.attackEntityFrom(damagesource, i)) {
 			this.ticksSinceDamaged = 0;
 			return true;
 		} else {
@@ -599,7 +634,6 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 		if (result) {
 			// charging, apply extra pushback
 			toAttack.addVelocity(-MathHelper.sin((rotationYaw * 3.141593F) / 180F) * 2.0F, 0.4F, MathHelper.cos((rotationYaw * 3.141593F) / 180F) * 2.0F);
-			this.applyEnchantments(this, toAttack);
 		}
 
 		return result;
@@ -626,6 +660,16 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	}
 
 	@Override
+	public void setDead() {
+		super.setDead();
+		for (EntityTFNagaSegment seg : bodySegments) {
+			// must use this instead of setDead
+			// since multiparts are not added to the world tick list which is what checks isDead
+			this.world.removeEntityDangerously(seg);
+		}
+	}
+
+	@Override
 	public boolean isWithinHomeDistanceFromPosition(BlockPos pos) {
 		if (this.getMaximumHomeDistance() == -1) {
 			return true;
@@ -642,12 +686,20 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 		return isWithinHomeDistanceFromPosition(new BlockPos(entity));
 	}
 
-	private void spawnBodySegments() {
+	private void activateBodySegments() {
 		for (int i = 0; i < currentSegmentCount; i++) {
-			if (bodySegments[i] == null || bodySegments[i].isDead) {
-				bodySegments[i] = new EntityTFNagaSegment(this, i);
-				bodySegments[i].setLocationAndAngles(posX + 0.1 * i, posY + 0.5D, posZ + 0.1 * i, rand.nextFloat() * 360F, 0.0F);
-				if (!world.isRemote) world.spawnEntity(bodySegments[i]);
+			EntityTFNagaSegment segment = bodySegments[i];
+			segment.activate();
+			segment.setLocationAndAngles(posX + 0.1 * i, posY + 0.5D, posZ + 0.1 * i, rand.nextFloat() * 360F, 0.0F);
+			for (int j = 0; j < 20; j++) {
+				double d0 = this.rand.nextGaussian() * 0.02D;
+				double d1 = this.rand.nextGaussian() * 0.02D;
+				double d2 = this.rand.nextGaussian() * 0.02D;
+				this.world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL,
+						segment.posX + (double) (this.rand.nextFloat() * segment.width * 2.0F) - (double) segment.width - d0 * 10.0D,
+						segment.posY + (double) (this.rand.nextFloat() * segment.height) - d1 * 10.0D,
+						segment.posZ + (double) (this.rand.nextFloat() * segment.width * 2.0F) - (double) segment.width - d2 * 10.0D,
+						d0, d1, d2);
 			}
 		}
 	}
@@ -656,7 +708,7 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	 * Sets the heading (ha ha) of the bodySegments segments
 	 */
 	private void moveSegments() {
-		for (int i = 0; i < this.currentSegmentCount; i++) {
+		for (int i = 0; i < this.bodySegments.length; i++) {
 			Entity leader = i == 0 ? this : this.bodySegments[i - 1];
 			double followX = leader.posX;
 			double followY = leader.posY;
@@ -718,8 +770,6 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 			this.detachHome();
 		}
 
-		setSegmentsPerHealth();
-
 		if (this.hasCustomName()) {
 			this.bossInfo.setName(this.getDisplayName());
 		}
@@ -750,15 +800,14 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	}
 
 	@Override
-	public boolean attackEntityFromPart(MultiPartEntityPart MultiPartEntityPart, DamageSource damagesource, float i) {
-		return false;
+	public boolean attackEntityFromPart(MultiPartEntityPart part, DamageSource src, float damage) {
+		return attackEntityFrom(src, damage);
 	}
 
 	@Override
 	public Entity[] getParts() {
-		return Arrays.stream(bodySegments).filter(Objects::nonNull).toArray(Entity[]::new);
+		return bodySegments;
 	}
-
 
 	@Override
 	public void addTrackingPlayer(EntityPlayerMP player) {
@@ -770,5 +819,10 @@ public class EntityTFNaga extends EntityMob implements IEntityMultiPart {
 	public void removeTrackingPlayer(EntityPlayerMP player) {
 		super.removeTrackingPlayer(player);
 		this.bossInfo.removePlayer(player);
+	}
+
+	@Override
+	public boolean isNonBoss() {
+		return false;
 	}
 }

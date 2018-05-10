@@ -5,7 +5,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.structures.lichtower.ComponentTFTowerWing;
 
 import java.util.List;
@@ -16,14 +17,14 @@ public class ComponentTFDarkTowerBalcony extends ComponentTFTowerWing {
 	public ComponentTFDarkTowerBalcony() {
 	}
 
-	protected ComponentTFDarkTowerBalcony(int i, int x, int y, int z, EnumFacing direction) {
-		super(i, x, y, z, 5, 5, direction);
+	protected ComponentTFDarkTowerBalcony(TFFeature feature, int i, int x, int y, int z, EnumFacing direction) {
+		super(feature, i, x, y, z, 5, 5, direction);
 	}
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 	}
 

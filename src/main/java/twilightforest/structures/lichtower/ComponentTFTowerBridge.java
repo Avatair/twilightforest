@@ -6,7 +6,8 @@ import net.minecraft.util.Rotation;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
@@ -20,12 +21,11 @@ public class ComponentTFTowerBridge extends ComponentTFTowerWing {
 
 	public ComponentTFTowerBridge() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
-	protected ComponentTFTowerBridge(int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
-		super(i, x, y, z, 3, 3, direction);
+	protected ComponentTFTowerBridge(TFFeature feature, int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
+		super(feature, i, x, y, z, 3, 3, direction);
 
 		this.dSize = pSize;
 		this.dHeight = pHeight;
@@ -44,7 +44,7 @@ public class ComponentTFTowerBridge extends ComponentTFTowerWing {
 	 */
 	public StructureBoundingBox getWingBB() {
 		int[] dest = offsetTowerCoords(2, 1, 1, dSize, this.getCoordBaseMode());
-		return StructureTFComponent.getComponentToAddBoundingBox(dest[0], dest[1], dest[2], 0, 0, 0, dSize - 1, dHeight - 1, dSize - 1, this.getCoordBaseMode());
+		return StructureTFComponentOld.getComponentToAddBoundingBox(dest[0], dest[1], dest[2], 0, 0, 0, dSize - 1, dHeight - 1, dSize - 1, this.getCoordBaseMode());
 	}
 
 

@@ -1,6 +1,7 @@
 package twilightforest.item;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -11,10 +12,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 
 public class ItemBlockTFMeta extends ItemBlock {
+	private boolean appendNumber = true;
 
 	public ItemBlockTFMeta(Block block) {
 		super(block);
 		setHasSubtypes(true);
+	}
+
+	public ItemBlockTFMeta setAppend(boolean doAppend) {
+		this.appendNumber = doAppend;
+		return this;
 	}
 
 	@Override
@@ -24,8 +31,10 @@ public class ItemBlockTFMeta extends ItemBlock {
 
 	@Override
 	public String getUnlocalizedName(ItemStack itemstack) {
-		int meta = itemstack.getItemDamage();
-		return (new StringBuilder()).append(super.getUnlocalizedName()).append(".").append(meta).toString();
+		if (appendNumber) {
+			int meta = itemstack.getItemDamage();
+			return (new StringBuilder()).append(super.getUnlocalizedName()).append(".").append(meta).toString();
+		} else return super.getUnlocalizedName();
 	}
 
 	@Override
@@ -35,16 +44,12 @@ public class ItemBlockTFMeta extends ItemBlock {
 
 		// add warning for [WIP] tag
 		if (stack.getDisplayName().contains("[WIP]")) {
-			// TODO 1.10 localize these messages.
-			tooltip.add("This block is a work in progress");
-			tooltip.add("and may have bugs or unintended");
-			tooltip.add("effects that may damage your world.");
-			tooltip.add("Use with caution.");
+			tooltip.add(I18n.format("twilightforest.misc.wip0"));
+			tooltip.add(I18n.format("twilightforest.misc.wip1"));
 		}
 		// add warning for [NYI] tag
 		if (stack.getDisplayName().contains("[NYI]")) {
-			tooltip.add("This block has effects");
-			tooltip.add("that are not yet implemented.");
+			tooltip.add(I18n.format("twilightforest.misc.nyi"));
 		}
 	}
 }

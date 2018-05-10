@@ -1,5 +1,6 @@
 package twilightforest.item;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockMatcher;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,9 +21,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFRoots;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.RootVariant;
+import twilightforest.enums.RootVariant;
 import twilightforest.world.TFGenerator;
 
 import javax.annotation.Nonnull;
@@ -45,7 +47,7 @@ public class ItemTFOreMagnet extends ItemTF {
 					return 0.0F;
 				} else {
 					ItemStack itemstack = entityIn.getActiveItemStack();
-					return !itemstack.isEmpty() && itemstack.getItem() == TFItems.oreMagnet ? (float) (stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F : 0.0F;
+					return !itemstack.isEmpty() && itemstack.getItem() == TFItems.ore_magnet ? (float) (stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F : 0.0F;
 				}
 			}
 		});
@@ -137,9 +139,9 @@ public class ItemTFOreMagnet extends ItemTF {
 		// find some ore?
 		IBlockState foundState = Blocks.AIR.getDefaultState();
 		BlockPos foundPos = null;
-		BlockPos basePos = null;
+        BlockPos basePos = null;
 
-		boolean isNetherrack = false;
+        boolean isNetherrack = false;
 
 		for (BlockPos coord : lineArray) {
 			IBlockState searchState = world.getBlockState(coord);
@@ -148,18 +150,15 @@ public class ItemTFOreMagnet extends ItemTF {
 			if (basePos == null) {
 				if (isReplaceable(world, searchState, coord)) {
 					basePos = coord;
-
 				} else if (isNetherReplaceable(world, searchState, coord)) {
 					isNetherrack = true;
 					basePos = coord;
 				}
-			}
-
-			if (searchState.getBlock() != Blocks.AIR && isOre(searchState)) {
-				foundState = searchState;
-				foundPos = coord;
-				break;
-			}
+				// This ordering is so that the base pos is found first before we pull ores - pushing ores away is a baaaaad idea!
+			} else if (foundPos == null && searchState.getBlock() != Blocks.AIR && isOre(searchState) && (world.getTileEntity(coord) == null)) {
+                foundState = searchState;
+                foundPos = coord;
+            }
 		}
 
 		if (basePos != null && foundState.getBlock() != Blocks.AIR) {
@@ -186,6 +185,7 @@ public class ItemTFOreMagnet extends ItemTF {
 				}
 			}
 		}
+
 		return blocksMoved;
 	}
 
@@ -202,16 +202,12 @@ public class ItemTFOreMagnet extends ItemTF {
 	}
 
 	private static boolean isReplaceable(World world, IBlockState state, BlockPos pos) {
-		if (state.getBlock() == Blocks.DIRT) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.GRASS) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.GRAVEL) {
-			return true;
-		}
-		if (state.getBlock() != Blocks.AIR && state.getBlock().isReplaceableOreGen(state, world, pos, BlockMatcher.forBlock(Blocks.STONE))) {
+        Block block = state.getBlock();
+
+	    if (block == Blocks.DIRT
+                || block == Blocks.GRASS
+                || block == Blocks.GRAVEL
+                || (block != Blocks.AIR && block.isReplaceableOreGen(state, world, pos, BlockMatcher.forBlock(Blocks.STONE)))) {
 			return true;
 		}
 
@@ -257,41 +253,23 @@ public class ItemTFOreMagnet extends ItemTF {
 
 
 	private static boolean isOre(IBlockState state) {
+        Block block = state.getBlock();
 
-		if (state.getBlock() == Blocks.COAL_ORE) {
-			return false;
-		}
-		if (state.getBlock() == Blocks.IRON_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.DIAMOND_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.EMERALD_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.GOLD_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.LAPIS_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.REDSTONE_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.LIT_REDSTONE_ORE) {
-			return true;
-		}
-		if (state.getBlock() == Blocks.QUARTZ_ORE) {
-			return true;
-		}
-		if (state == TFBlocks.root.getDefaultState().withProperty(BlockTFRoots.VARIANT, RootVariant.LIVEROOT)) {
-			return true;
-		}
-		if (state.getBlock().getUnlocalizedName().toLowerCase().contains("ore")) // todo 1.9 oh god
-		{
-			return true;
-		}
+		if (block == Blocks.COAL_ORE) return false;
+
+		if (block == Blocks.IRON_ORE
+                || block == Blocks.DIAMOND_ORE
+                || block == Blocks.EMERALD_ORE
+                || block == Blocks.GOLD_ORE
+                || block == Blocks.LAPIS_ORE
+                || block == Blocks.REDSTONE_ORE
+                || block == Blocks.LIT_REDSTONE_ORE
+                || block == Blocks.QUARTZ_ORE
+                || state == TFBlocks.root.getDefaultState().withProperty(BlockTFRoots.VARIANT, RootVariant.LIVEROOT)
+                // todo 1.9 oh god
+                // Good enough for now -Drullkus
+                || state.getBlock().getRegistryName().getResourcePath().contains("ore"))
+		    return true;
 
 		return false;
 	}

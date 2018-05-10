@@ -4,15 +4,22 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockFaceShape;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.effect.EntityLightningBolt;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -20,24 +27,48 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twilightforest.TFConfig;
 import twilightforest.TFTeleporter;
 import twilightforest.TwilightForestMod;
-import twilightforest.util.PlayerHelper;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class BlockTFPortal extends BlockBreakable {
-	private static final AxisAlignedBB AABB = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.75F, 1.0F);
+	public static final PropertyBool DISALLOW_RETURN = PropertyBool.create("is_one_way");
+
+	private static final AxisAlignedBB AABB = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.8125F, 1.0F);
+	private static final AxisAlignedBB AABB_ITEM = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.4F, 1.0F);
+	private static final int PORTAL_SIZE_LIMIT = 64;
 
 	public BlockTFPortal() {
 		super(Material.PORTAL, false);
 		this.setHardness(-1F);
 		this.setSoundType(SoundType.GLASS);
 		this.setLightLevel(0.75F);
+		this.setDefaultState(this.blockState.getBaseState().withProperty(DISALLOW_RETURN, false));
+	}
+
+	@Override
+	public BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, DISALLOW_RETURN);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state) {
+		return state.getValue(DISALLOW_RETURN) ? 1 : 0;
+	}
+
+	@Override
+	@Deprecated
+	public IBlockState getStateFromMeta(int meta) {
+		return getDefaultState().withProperty(DISALLOW_RETURN, meta == 1);
 	}
 
 	@Override
@@ -49,148 +80,133 @@ public class BlockTFPortal extends BlockBreakable {
 	@Override
 	@Deprecated
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return NULL_AABB;
+		return state.getValue(DISALLOW_RETURN) ? AABB : NULL_AABB;
 	}
 
 	@Override
-	public boolean isOpaqueCube(IBlockState state) {
+	@Deprecated
+	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBB, List<AxisAlignedBB> blockBBs, @Nullable Entity entity, boolean isActualState) {
+		addCollisionBoxToList(pos, entityBB, blockBBs, entity != null && entity instanceof EntityItem ? AABB_ITEM : state.getCollisionBoundingBox(world, pos));
+	}
+
+	@Override
+	@Deprecated
+	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
 
-	/**
-	 * The function name says it all.  Tries to create a portal at the specified location.
-	 * In this case, the location is the location of a pool with very specific parameters.
-	 */
-	public boolean tryToCreatePortal(World world, BlockPos pos) {
-		if (isGoodPortalPool(world, pos)) {
-			world.addWeatherEffect(new EntityLightningBolt(world, pos.getX(), pos.getY(), pos.getZ(), false));
-
-			transmuteWaterToPortal(world, pos);
-
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Changes the pool it's been given to all portal.  No checks done, only does 4 squares.
-	 */
-	private void transmuteWaterToPortal(World world, BlockPos pos) {
-		// adjust so that the other 3 water squares are in the +x, +z directions.
-		if (world.getBlockState(pos.west()).getMaterial() == Material.WATER) {
-			pos = pos.west();
-		}
-		if (world.getBlockState(pos.north()).getMaterial() == Material.WATER) {
-			pos = pos.north();
-		}
-
-		world.setBlockState(pos, TFBlocks.portal.getDefaultState(), 2);
-		world.setBlockState(pos.east(), TFBlocks.portal.getDefaultState(), 2);
-		world.setBlockState(pos.east().south(), TFBlocks.portal.getDefaultState(), 2);
-		world.setBlockState(pos.south(), TFBlocks.portal.getDefaultState(), 2);
-	}
-
-	/**
-	 * If this spot, or a spot in any one of the 8 directions around me is good, we're good.
-	 */
-	private boolean isGoodPortalPool(World world, BlockPos pos) {
-		return isGoodPortalPoolStrict(world, pos)
-				|| isGoodPortalPoolStrict(world, pos.north())
-				|| isGoodPortalPoolStrict(world, pos.south())
-				|| isGoodPortalPoolStrict(world, pos.west())
-				|| isGoodPortalPoolStrict(world, pos.east())
-				|| isGoodPortalPoolStrict(world, pos.west().north())
-				|| isGoodPortalPoolStrict(world, pos.west().south())
-				|| isGoodPortalPoolStrict(world, pos.east().north())
-				|| isGoodPortalPoolStrict(world, pos.east().south());
-	}
-
-	/**
-	 * Returns true only if there is water here, and at dx + 1, dy + 1, grass surrounding it, and solid beneath.
-	 * <p>
-	 * <p>
-	 * GGGG
-	 * G+wG
-	 * GwwG
-	 * GGGG
-	 */
-	public boolean isGoodPortalPoolStrict(World world, BlockPos pos) {
-		// 4 squares of water
-		return world.getBlockState(pos).getMaterial() == Material.WATER
-				&& world.getBlockState(pos.east()).getMaterial() == Material.WATER
-				&& world.getBlockState(pos.east().south()).getMaterial() == Material.WATER
-				&& world.getBlockState(pos.south()).getMaterial() == Material.WATER
-
-				// grass in the 12 squares surrounding
-				&& isGrassOrDirt(world, pos.west().north())
-				&& isGrassOrDirt(world, pos.west())
-				&& isGrassOrDirt(world, pos.west().south())
-				&& isGrassOrDirt(world, pos.west().south(2))
-
-				&& isGrassOrDirt(world, pos.north())
-				&& isGrassOrDirt(world, pos.east().north())
-
-				&& isGrassOrDirt(world, pos.south(2))
-				&& isGrassOrDirt(world, pos.east().south(2))
-
-				&& isGrassOrDirt(world, pos.east(2).north())
-				&& isGrassOrDirt(world, pos.east(2))
-				&& isGrassOrDirt(world, pos.east(2).south())
-				&& isGrassOrDirt(world, pos.east(2).south(2))
-
-				// solid underneath
-				&& world.getBlockState(pos.down()).getMaterial().isSolid()
-				&& world.getBlockState(pos.down().east()).getMaterial().isSolid()
-				&& world.getBlockState(pos.down().east().south()).getMaterial().isSolid()
-				&& world.getBlockState(pos.down().south()).getMaterial().isSolid()
-
-				// 12 nature blocks above the grass?
-				&& isNatureBlock(world, pos.up().west().north())
-				&& isNatureBlock(world, pos.up().west())
-				&& isNatureBlock(world, pos.up().west().south())
-				&& isNatureBlock(world, pos.up().west().south(2))
-
-				&& isNatureBlock(world, pos.up().north())
-				&& isNatureBlock(world, pos.up().east().north())
-
-				&& isNatureBlock(world, pos.up().south(2))
-				&& isNatureBlock(world, pos.up().south(2).east())
-
-				&& isNatureBlock(world, pos.up().east(2).north())
-				&& isNatureBlock(world, pos.up().east(2))
-				&& isNatureBlock(world, pos.up().east(2).south())
-				&& isNatureBlock(world, pos.up().east(2).south(2));
-	}
-
-	/**
-	 * Does the block at this location count as a "nature" block for portal purposes?
-	 */
-	private boolean isNatureBlock(World world, BlockPos pos) {
-		Material mat = world.getBlockState(pos).getMaterial();
-		return mat == Material.PLANTS || mat == Material.VINE || mat == Material.LEAVES;
-	}
-
-	/**
-	 * Each twilight portal pool block should have grass or dirt on one side and a portal on the other.  If this is not true, delete this block, presumably causing a chain reaction.
-	 */
 	@Override
 	@Deprecated
+	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+		return BlockFaceShape.UNDEFINED;
+	}
+
+	public boolean tryToCreatePortal(World world, BlockPos pos, EntityItem activationItem) {
+		IBlockState state = world.getBlockState(pos);
+
+		if (state == Blocks.WATER.getDefaultState() || (state.getBlock() == this && state.getValue(DISALLOW_RETURN))) {
+			HashMap<BlockPos, Boolean> blocksChecked = new HashMap<>();
+			blocksChecked.put(pos, true);
+
+			MutableInt size = new MutableInt(0);
+
+			if (recursivelyValidatePortal(world, pos, blocksChecked, size, state) && size.get() > 3) {
+				activationItem.getItem().shrink(1);
+				causeLightning(world, pos, TFConfig.portalLightning);
+
+				for (Map.Entry<BlockPos, Boolean> checkedPos : blocksChecked.entrySet())
+					if (checkedPos.getValue()) world.setBlockState(checkedPos.getKey(), TFBlocks.portal.getDefaultState(), 2);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static void causeLightning(World world, BlockPos pos, boolean fake) {
+		EntityLightningBolt bolt = new EntityLightningBolt(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, fake);
+		world.addWeatherEffect(bolt);
+
+		if (fake) {
+			double range = 3.0D;
+			List<Entity> list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos).grow(range));
+
+			for (Entity victim : list) {
+				if (!ForgeEventFactory.onEntityStruckByLightning(victim, bolt)) {
+					victim.onStruckByLightning(bolt);
+				}
+			}
+		}
+	}
+
+	private static boolean recursivelyValidatePortal(World world, BlockPos pos, HashMap<BlockPos, Boolean> blocksChecked, MutableInt waterLimit, IBlockState requiredBlockFor) {
+		boolean isPoolProbablyEnclosed = true;
+
+		waterLimit.increment();
+		if (waterLimit.get() > PORTAL_SIZE_LIMIT) return false;
+
+		for (int i = 0; i < EnumFacing.HORIZONTALS.length && waterLimit.get() <= PORTAL_SIZE_LIMIT; i++) {
+			BlockPos positionCheck = pos.offset(EnumFacing.HORIZONTALS[i]);
+
+			if (!blocksChecked.containsKey(positionCheck)) {
+				IBlockState state = world.getBlockState(positionCheck);
+
+				if (state == requiredBlockFor && world.getBlockState(positionCheck.down()).isFullCube()) {
+					blocksChecked.put(positionCheck, true);
+
+					isPoolProbablyEnclosed = isPoolProbablyEnclosed && recursivelyValidatePortal(world, positionCheck, blocksChecked, waterLimit, requiredBlockFor);
+				} else if ((isGrassOrDirt(state) && isNatureBlock(world.getBlockState(positionCheck.up()))) || state.getBlock() == TFBlocks.uberous_soil) {
+					blocksChecked.put(positionCheck, false);
+				} else return false;
+			}
+		}
+
+		return isPoolProbablyEnclosed;
+	}
+
+	private static class MutableInt {
+		private int anInt;
+
+		MutableInt(int anInt) {
+			this.anInt = anInt;
+		}
+
+		int get() {
+			return anInt;
+		}
+
+		void increment() {
+			this.anInt++;
+		}
+	}
+
+	private static boolean isNatureBlock(IBlockState state) {
+		Material mat = state.getMaterial();
+		return (mat == Material.PLANTS || mat == Material.VINE || mat == Material.LEAVES);
+	}
+
+	private static boolean isGrassOrDirt(IBlockState state) {
+		Material mat = state.getMaterial();
+		return state.isFullCube() && (mat == Material.GRASS || mat == Material.GROUND);
+	}
+
+	@Override
 	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block notUsed, BlockPos fromPos) {
-		boolean good = Arrays.stream(EnumFacing.HORIZONTALS)
-				.filter(e -> world.getBlockState(pos.offset(e)).getBlock() == this
-						&& isGrassOrDirt(world, pos.offset(e.getOpposite())))
-				.count() >= 2;
+		boolean good = world.getBlockState(pos.down()).isFullCube();
+
+		for (EnumFacing facing : EnumFacing.HORIZONTALS) {
+			if (!good) break;
+
+			IBlockState neighboringState = world.getBlockState(pos.offset(facing));
+
+			good = isGrassOrDirt(neighboringState) || neighboringState == state;
+		}
 
 		if (!good) {
 			world.playEvent(2001, pos, Block.getStateId(state));
-			world.setBlockState(pos, Blocks.WATER.getDefaultState());
+			world.setBlockState(pos, Blocks.WATER.getDefaultState(), 0b11);
 		}
-	}
-
-	private boolean isGrassOrDirt(World world, BlockPos pos) {
-		return world.getBlockState(pos).getMaterial() == Material.GRASS
-				|| world.getBlockState(pos).getMaterial() == Material.GROUND;
 	}
 
 	@Override
@@ -206,38 +222,41 @@ public class BlockTFPortal extends BlockBreakable {
 
 	@Override
 	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
-		if (!entity.isRiding() && entity.getPassengers().isEmpty() && entity.timeUntilPortal <= 0) {
-			if (entity instanceof EntityPlayerMP) {
-				EntityPlayerMP playerMP = (EntityPlayerMP) entity;
+		if (state == this.getDefaultState() && !entity.isRiding() && entity.getPassengers().isEmpty() && entity.timeUntilPortal <= 0)
+			attemptSendPlayer(entity, false);
+	}
 
-				if (playerMP.timeUntilPortal > 0) {
-					// do not switch dimensions if the player has any time on this thinger
-					playerMP.timeUntilPortal = 10;
-				} else {
+	public static void attemptSendPlayer(Entity entity, boolean forcedEntry) {
+		if (entity instanceof EntityPlayerMP) {
+			EntityPlayerMP playerMP = (EntityPlayerMP) entity;
+			playerMP.invulnerableDimensionChange = true;
 
-					// send to twilight
-					if (playerMP.dimension != TFConfig.dimension.dimensionID) {
-						if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(playerMP, TFConfig.dimension.dimensionID)) return;
-
-						//PlayerHelper.grantAdvancement(playerMP, new ResourceLocation(TwilightForestMod.ID, "twilight_portal"));
-						TwilightForestMod.LOGGER.debug("Player touched the portal block.  Sending the player to dimension {}", TFConfig.dimension.dimensionID);
-
-						playerMP.mcServer.getPlayerList().transferPlayerToDimension(playerMP, TFConfig.dimension.dimensionID, TFTeleporter.getTeleporterForDim(playerMP.mcServer, TFConfig.dimension.dimensionID));
-
-						// set respawn point for TF dimension to near the arrival portal
-						playerMP.setSpawnChunk(new BlockPos(playerMP), true, TFConfig.dimension.dimensionID);
-					} else {
-						if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(playerMP, 0)) return;
-
-						playerMP.mcServer.getPlayerList().transferPlayerToDimension(playerMP, 0, TFTeleporter.getTeleporterForDim(playerMP.mcServer, 0));
-					}
-				}
+			if ((!forcedEntry) && playerMP.timeUntilPortal > 0) {
+				// do not switch dimensions if the player has any time on this thinger
+				playerMP.timeUntilPortal = 10;
 			} else {
-				if (entity.dimension != TFConfig.dimension.dimensionID) {
-					changeDimension(entity, TFConfig.dimension.dimensionID);
+				// send to twilight
+				if (playerMP.dimension != TFConfig.dimension.dimensionID) {
+					if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(playerMP, TFConfig.dimension.dimensionID)) return;
+
+					//PlayerHelper.grantAdvancement(playerMP, new ResourceLocation(TwilightForestMod.ID, "twilight_portal"));
+					TwilightForestMod.LOGGER.debug("Player touched the portal block.  Sending the player to dimension {}", TFConfig.dimension.dimensionID);
+
+					playerMP.mcServer.getPlayerList().transferPlayerToDimension(playerMP, TFConfig.dimension.dimensionID, TFTeleporter.getTeleporterForDim(playerMP.mcServer, TFConfig.dimension.dimensionID));
+
+					// set respawn point for TF dimension to near the arrival portal
+					playerMP.setSpawnChunk(new BlockPos(playerMP), true, TFConfig.dimension.dimensionID);
 				} else {
-					changeDimension(entity, 0);
+					if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(playerMP, 0)) return;
+
+					playerMP.mcServer.getPlayerList().transferPlayerToDimension(playerMP, 0, TFTeleporter.getTeleporterForDim(playerMP.mcServer, 0));
 				}
+			}
+		} else {
+			if (entity.dimension != TFConfig.dimension.dimensionID) {
+				changeDimension(entity, TFConfig.dimension.dimensionID);
+			} else {
+				changeDimension(entity, 0);
 			}
 		}
 	}
@@ -248,7 +267,7 @@ public class BlockTFPortal extends BlockBreakable {
 	 * return value Entity -> void
 	 */
 	@SuppressWarnings("unused")
-	private void changeDimension(Entity toTeleport, int dimensionIn) {
+	private static void changeDimension(Entity toTeleport, int dimensionIn) {
 		if (!toTeleport.world.isRemote && !toTeleport.isDead) {
 			if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(toTeleport, dimensionIn)) return;
 			toTeleport.world.profiler.startSection("changeDimension");
@@ -319,31 +338,35 @@ public class BlockTFPortal extends BlockBreakable {
 	}
 
 	// Full [VanillaCopy] of BlockPortal.randomDisplayTick
+	// TODO Eeeh... Let's look at changing this too alongside a new model.
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
-		if (rand.nextInt(100) == 0) {
+		int random = rand.nextInt(100);
+		if (stateIn.getValue(DISALLOW_RETURN) && random < 80) return;
+
+		if (random == 0) {
 			worldIn.playSound((double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, SoundEvents.BLOCK_PORTAL_AMBIENT, SoundCategory.BLOCKS, 0.5F, rand.nextFloat() * 0.4F + 0.8F, false);
 		}
 
 		for (int i = 0; i < 4; ++i) {
-			double d0 = (double) ((float) pos.getX() + rand.nextFloat());
-			double d1 = (double) ((float) pos.getY() + rand.nextFloat());
-			double d2 = (double) ((float) pos.getZ() + rand.nextFloat());
-			double d3 = ((double) rand.nextFloat() - 0.5D) * 0.5D;
-			double d4 = ((double) rand.nextFloat() - 0.5D) * 0.5D;
-			double d5 = ((double) rand.nextFloat() - 0.5D) * 0.5D;
-			int j = rand.nextInt(2) * 2 - 1;
+			double xPos = (double) ((float) pos.getX() + rand.nextFloat());
+			double yPos = pos.getY()+1D;
+			double zPos = (double) ((float) pos.getZ() + rand.nextFloat());
+			double xSpeed = ((double) rand.nextFloat() - 0.5D) * 0.5D;
+			double ySpeed = rand.nextFloat();
+			double zSpeed = ((double) rand.nextFloat() - 0.5D) * 0.5D;
+			//int j = rand.nextInt(2) * 2 - 1;
 
-			if (worldIn.getBlockState(pos.west()).getBlock() != this && worldIn.getBlockState(pos.east()).getBlock() != this) {
-				d0 = (double) pos.getX() + 0.5D + 0.25D * (double) j;
-				d3 = (double) (rand.nextFloat() * 2.0F * (float) j);
-			} else {
-				d2 = (double) pos.getZ() + 0.5D + 0.25D * (double) j;
-				d5 = (double) (rand.nextFloat() * 2.0F * (float) j);
-			}
+			//if (worldIn.getBlockState(pos.west()).getBlock() != this && worldIn.getBlockState(pos.east()).getBlock() != this) {
+			//	xPos = (double) pos.getX() + 0.5D + 0.25D * (double) j;
+			//	xSpeed = (double) (rand.nextFloat() * 2.0F * (float) j);
+			//} else {
+			//	zPos = (double) pos.getZ() + 0.5D + 0.25D * (double) j;
+			//	zSpeed = (double) (rand.nextFloat() * 2.0F * (float) j);
+			//}
 
-			worldIn.spawnParticle(EnumParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5, new int[0]);
+			worldIn.spawnParticle(EnumParticleTypes.PORTAL, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
 		}
 	}
 }

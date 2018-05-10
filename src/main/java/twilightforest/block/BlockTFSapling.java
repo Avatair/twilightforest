@@ -4,6 +4,7 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.IGrowable;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -22,7 +23,7 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twilightforest.block.enums.SaplingVariant;
+import twilightforest.enums.SaplingVariant;
 import twilightforest.client.ModelRegisterCallback;
 import twilightforest.item.TFItems;
 import twilightforest.world.TFGenCanopyTree;
@@ -48,6 +49,7 @@ public class BlockTFSapling extends BlockBush implements IGrowable, ModelRegiste
 
 	protected BlockTFSapling() {
 		this.setCreativeTab(TFItems.creativeTab);
+		this.setSoundType(SoundType.PLANT);
 		this.setDefaultState(blockState.getBaseState()
 				.withProperty(TF_TYPE, SaplingVariant.OAK));
 	}

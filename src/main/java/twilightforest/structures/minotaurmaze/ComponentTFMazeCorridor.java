@@ -4,19 +4,19 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.Random;
 
-public class ComponentTFMazeCorridor extends StructureTFComponent {
+public class ComponentTFMazeCorridor extends StructureTFComponentOld {
 
 	public ComponentTFMazeCorridor() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public ComponentTFMazeCorridor(int i, int x, int y, int z, EnumFacing rotation) {
-		super(i);
+	public ComponentTFMazeCorridor(TFFeature feature, int i, int x, int y, int z, EnumFacing rotation) {
+		super(feature, i);
 		this.setCoordBaseMode(rotation);
 		this.boundingBox = new StructureBoundingBox(x, y, z, x + 5, y + 5, z + 5);
 	}

@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import twilightforest.TFPacketHandler;
 import twilightforest.block.BlockTFCastleMagic;
 import twilightforest.block.TFBlocks;
+import twilightforest.item.TFItems;
 import twilightforest.network.PacketAnnihilateBlock;
 import twilightforest.util.WorldUtil;
 
@@ -53,13 +54,23 @@ public class EntityTFCubeOfAnnihilation extends EntityThrowable {
 			return;
 
 		// only hit living things
-		if (mop.entityHit != null && mop.entityHit instanceof EntityLivingBase
-				&& mop.entityHit.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) this.getThrower()), 10)) {
+		if (mop.entityHit instanceof EntityLivingBase && mop.entityHit.attackEntityFrom(this.getDamageSource(), 10)) {
 			this.ticksExisted += 60;
 		}
 
 		if (mop.getBlockPos() != null && !this.world.isAirBlock(mop.getBlockPos())) {
 			this.affectBlocksInAABB(this.getEntityBoundingBox().grow(0.2F, 0.2F, 0.2F));
+		}
+	}
+
+	private DamageSource getDamageSource() {
+		EntityLivingBase thrower = this.getThrower();
+		if (thrower instanceof EntityPlayer) {
+			return DamageSource.causePlayerDamage((EntityPlayer) thrower);
+		} else if (thrower != null) {
+			return DamageSource.causeMobDamage(thrower);
+		} else {
+			return DamageSource.causeThrownDamage(this, null);
 		}
 	}
 
@@ -81,7 +92,7 @@ public class EntityTFCubeOfAnnihilation extends EntityThrowable {
 	private boolean canAnnihilate(BlockPos pos, IBlockState state) {
 		// whitelist many castle blocks
 		Block block = state.getBlock();
-		if (block == TFBlocks.deadrock || block == TFBlocks.castleBlock || (block == TFBlocks.castleMagic && state.getValue(BlockTFCastleMagic.COLOR) != EnumDyeColor.PURPLE) || block == TFBlocks.forceField || block == TFBlocks.thorns) {
+		if (block == TFBlocks.deadrock || block == TFBlocks.castle_brick || (block == TFBlocks.castle_rune_brick && state.getValue(BlockTFCastleMagic.COLOR) != EnumDyeColor.PURPLE) || block == TFBlocks.force_field || block == TFBlocks.thorns) {
 			return true;
 		}
 
@@ -148,6 +159,15 @@ public class EntityTFCubeOfAnnihilation extends EntityThrowable {
 
 			// demolish some blocks
 			this.affectBlocksInAABB(this.getEntityBoundingBox().grow(0.2F, 0.2F, 0.2F));
+		}
+	}
+
+	@Override
+	public void setDead() {
+		super.setDead();
+		EntityLivingBase thrower = this.getThrower();
+		if (thrower != null && thrower.getActiveItemStack().getItem() == TFItems.cube_of_annihilation) {
+			thrower.resetActiveHand();
 		}
 	}
 

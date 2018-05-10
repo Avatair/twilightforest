@@ -5,22 +5,23 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFMazestone;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.MazestoneVariant;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.enums.MazestoneVariant;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
 
-public class ComponentTFMazeRoom extends StructureTFComponent {
+public class ComponentTFMazeRoom extends StructureTFComponentOld {
 
 	public ComponentTFMazeRoom() {
 		super();
 	}
 
-	public ComponentTFMazeRoom(int i, Random rand, int x, int y, int z) {
-		super(i);
+	public ComponentTFMazeRoom(TFFeature feature, int i, Random rand, int x, int y, int z) {
+		super(feature, i);
 		this.setCoordBaseMode(EnumFacing.HORIZONTALS[rand.nextInt(4)]);
 
 		this.boundingBox = new StructureBoundingBox(x, y, z, x + 15, y + 4, z + 15);
@@ -37,8 +38,8 @@ public class ComponentTFMazeRoom extends StructureTFComponent {
 	@Override
 	public boolean addComponentParts(World world, Random rand, StructureBoundingBox sbb) {
 		// floor border
-		fillWithBlocks(world, sbb, 1, 0, 1, 14, 0, 14, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.BORDER), AIR, true);
-		fillWithBlocks(world, sbb, 2, 0, 2, 13, 0, 13, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.MOSAIC), AIR, true);
+		fillWithBlocks(world, sbb, 1, 0, 1, 14, 0, 14, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.BORDER), AIR, true);
+		fillWithBlocks(world, sbb, 2, 0, 2, 13, 0, 13, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.MOSAIC), AIR, true);
 
 		// doorways
 		if (this.getBlockStateFromPos(world, 7, 1, 0, sbb).getBlock() == Blocks.AIR) {

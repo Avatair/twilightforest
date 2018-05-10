@@ -18,9 +18,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.TFTreasure;
 import twilightforest.block.TFBlocks;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.structures.StructureTFHelper;
 import twilightforest.util.RotationUtil;
 import twilightforest.util.TFEntityNames;
@@ -36,7 +37,7 @@ import static net.minecraft.block.BlockStoneSlab.EnumType.SMOOTHBRICK;
 import static twilightforest.block.BlockTFCastleMagic.COLOR;
 
 
-public class ComponentTFTowerWing extends StructureTFComponent {
+public class ComponentTFTowerWing extends StructureTFComponentOld {
 
 	public ComponentTFTowerWing() {
 		super();
@@ -51,13 +52,13 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 	protected int highestOpening;
 	protected boolean[] openingTowards = new boolean[]{false, false, true, false};
 
-	protected ComponentTFTowerWing(int i) {
-		super(i);
+	protected ComponentTFTowerWing(TFFeature feature, int i) {
+		super(feature, i);
 		this.highestOpening = 0;
 	}
 
-	protected ComponentTFTowerWing(int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
-		super(i);
+	protected ComponentTFTowerWing(TFFeature feature, int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
+		super(feature, i);
 
 		this.size = pSize;
 		this.height = pHeight;
@@ -65,23 +66,23 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 
 		this.highestOpening = 0;
 
-		this.boundingBox = StructureTFComponent.getComponentToAddBoundingBox(x, y, z, 0, 0, 0, size - 1, height - 1, size - 1, direction);
+		this.boundingBox = StructureTFComponentOld.getComponentToAddBoundingBox(x, y, z, 0, 0, 0, size - 1, height - 1, size - 1, direction);
 	}
 
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setInteger("towerSize", this.size);
-		par1NBTTagCompound.setInteger("towerHeight", this.height);
+		tagCompound.setInteger("towerSize", this.size);
+		tagCompound.setInteger("towerHeight", this.height);
 
-		par1NBTTagCompound.setIntArray("doorInts", this.getDoorsAsIntArray());
+		tagCompound.setIntArray("doorInts", this.getDoorsAsIntArray());
 
-		par1NBTTagCompound.setInteger("highestOpening", this.highestOpening);
-		par1NBTTagCompound.setBoolean("openingTowards0", this.openingTowards[0]);
-		par1NBTTagCompound.setBoolean("openingTowards1", this.openingTowards[1]);
-		par1NBTTagCompound.setBoolean("openingTowards2", this.openingTowards[2]);
-		par1NBTTagCompound.setBoolean("openingTowards3", this.openingTowards[3]);
+		tagCompound.setInteger("highestOpening", this.highestOpening);
+		tagCompound.setBoolean("openingTowards0", this.openingTowards[0]);
+		tagCompound.setBoolean("openingTowards1", this.openingTowards[1]);
+		tagCompound.setBoolean("openingTowards2", this.openingTowards[2]);
+		tagCompound.setBoolean("openingTowards3", this.openingTowards[3]);
 
 	}
 
@@ -101,19 +102,19 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 	}
 
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.size = par1NBTTagCompound.getInteger("towerSize");
-		this.height = par1NBTTagCompound.getInteger("towerHeight");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.size = tagCompound.getInteger("towerSize");
+		this.height = tagCompound.getInteger("towerHeight");
 
-		this.readOpeningsFromArray(par1NBTTagCompound.getIntArray("doorInts"));
+		this.readOpeningsFromArray(tagCompound.getIntArray("doorInts"));
 
-		this.highestOpening = par1NBTTagCompound.getInteger("highestOpening");
+		this.highestOpening = tagCompound.getInteger("highestOpening");
 		// too lazy to do this as a loop
-		this.openingTowards[0] = par1NBTTagCompound.getBoolean("openingTowards0");
-		this.openingTowards[1] = par1NBTTagCompound.getBoolean("openingTowards1");
-		this.openingTowards[2] = par1NBTTagCompound.getBoolean("openingTowards2");
-		this.openingTowards[3] = par1NBTTagCompound.getBoolean("openingTowards3");
+		this.openingTowards[0] = tagCompound.getBoolean("openingTowards0");
+		this.openingTowards[1] = tagCompound.getBoolean("openingTowards1");
+		this.openingTowards[2] = tagCompound.getBoolean("openingTowards2");
+		this.openingTowards[3] = tagCompound.getBoolean("openingTowards3");
 	}
 
 	/**
@@ -168,7 +169,7 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 			// I think there are very few circumstances where we can make a wing and not a bridge
 		}
 
-		ComponentTFTowerWing wing = new ComponentTFTowerWing(index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
+		ComponentTFTowerWing wing = new ComponentTFTowerWing(getFeatureType(), index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, wing.boundingBox);
 		if (intersect == null || intersect == this) {
@@ -195,7 +196,7 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 		if (wingSize == 3 && wingHeight > 10) {
 			wingHeight = 6 + rand.nextInt(5);
 		}
-		ComponentTFTowerBridge bridge = new ComponentTFTowerBridge(index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
+		ComponentTFTowerBridge bridge = new ComponentTFTowerBridge(getFeatureType(), index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, bridge.boundingBox);
 		if (intersect == null || intersect == this) {
@@ -242,9 +243,9 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 		int index = this.getComponentType();
 		ComponentTFTowerBeard beard;
 		if (attached) {
-			beard = new ComponentTFTowerBeardAttached(index + 1, this);
+			beard = new ComponentTFTowerBeardAttached(getFeatureType(), index + 1, this);
 		} else {
-			beard = new ComponentTFTowerBeard(index + 1, this);
+			beard = new ComponentTFTowerBeard(getFeatureType(), index + 1, this);
 		}
 		list.add(beard);
 		beard.buildComponent(this, list, rand);
@@ -276,25 +277,25 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 
 		// this is our preferred roof type:
 		if (roofType == null && rand.nextInt(32) != 0) {
-			tryToFitRoof(list, rand, new ComponentTFTowerRoofGableForwards(index + 1, this));
+			tryToFitRoof(list, rand, new ComponentTFTowerRoofGableForwards(getFeatureType(), index + 1, this));
 		}
 
 		// this is for roofs that don't fit.
 		if (roofType == null && rand.nextInt(8) != 0) {
-			tryToFitRoof(list, rand, new ComponentTFTowerRoofSlabForwards(index + 1, this));
+			tryToFitRoof(list, rand, new ComponentTFTowerRoofSlabForwards(getFeatureType(), index + 1, this));
 		}
 
 		// finally, if we're cramped for space, try this
 		if (roofType == null && rand.nextInt(32) != 0) {
 			// fall through to this next roof
-			roof = new ComponentTFTowerRoofAttachedSlab(index + 1, this);
+			roof = new ComponentTFTowerRoofAttachedSlab(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 
 		// last resort
 		if (roofType == null) {
 			// fall through to this next roof
-			roof = new ComponentTFTowerRoofFence(index + 1, this);
+			roof = new ComponentTFTowerRoofFence(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 	}
@@ -318,31 +319,31 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 
 		// most roofs that fit fancy roofs will be this
 		if (roofType == null && rand.nextInt(8) != 0) {
-			roof = new ComponentTFTowerRoofPointyOverhang(index + 1, this);
+			roof = new ComponentTFTowerRoofPointyOverhang(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 
 		// don't pass by this one if it fits
 		if (roofType == null) {
-			roof = new ComponentTFTowerRoofStairsOverhang(index + 1, this);
+			roof = new ComponentTFTowerRoofStairsOverhang(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 
 		// don't pass by this one if it fits
 		if (roofType == null) {
-			roof = new ComponentTFTowerRoofStairs(index + 1, this);
+			roof = new ComponentTFTowerRoofStairs(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 
 		if (roofType == null && rand.nextInt(53) != 0) {
 			// fall through to this next roof
-			roof = new ComponentTFTowerRoofSlab(index + 1, this);
+			roof = new ComponentTFTowerRoofSlab(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 
 		if (roofType == null) {
 			// fall through to this next roof
-			roof = new ComponentTFTowerRoofFence(index + 1, this);
+			roof = new ComponentTFTowerRoofFence(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 	}
@@ -352,7 +353,7 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 	public boolean addComponentParts(World world, Random rand, StructureBoundingBox sbb) {
 
 		// make walls
-		fillWithRandomizedBlocks(world, sbb, 0, 0, 0, size - 1, height - 1, size - 1, false, rand, StructureTFComponent.getStrongholdStones());
+		fillWithRandomizedBlocks(world, sbb, 0, 0, 0, size - 1, height - 1, size - 1, false, rand, StructureTFComponentOld.getStrongholdStones());
 
 		// clear inside
 		fillWithAir(world, sbb, 1, 1, 1, size - 2, height - 2, size - 2);
@@ -1177,7 +1178,7 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 
 		final IBlockState oakFence = Blocks.OAK_FENCE.getDefaultState();
 
-		setDebugEntity(world, cx, cy, cz, "TowerWing.decorateChandelier");
+		//setDebugEntity(world, cx, cy, cz, sbb, "TowerWing.decorateChandelier");
 		surroundBlockCardinal(world, oakFence, cx, cy, cz, sbb);
 		surroundBlockCardinal(world, oakFence, cx, cy + 1, cz, sbb);
 
@@ -2105,7 +2106,7 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 		// near the middle
 		int startZ = 3 + rand.nextInt(this.size - 6);
 
-		final IBlockState magicBlock = TFBlocks.castleMagic.getDefaultState().withProperty(COLOR, colour);
+		final IBlockState magicBlock = TFBlocks.castle_rune_brick.getDefaultState().withProperty(COLOR, colour);
 
 		// make a line all the way down to the foundation
 		int dx = this.getXWithOffsetRotated(0, startZ, rotation);
@@ -2113,7 +2114,7 @@ public class ComponentTFTowerWing extends StructureTFComponent {
 		if (sbb.isVecInside(new BlockPos(dx, this.boundingBox.minY + 1, dz))) {
 			for (int dy = this.getYWithOffset(startHeight); dy > 0; dy--) {
 				final BlockPos pos = new BlockPos(dx, dy, dz);
-				if (world.getBlockState(pos).getBlock() == TFBlocks.castleBlock) {
+				if (world.getBlockState(pos).getBlock() == TFBlocks.castle_brick) {
 					world.setBlockState(pos, magicBlock, 2);
 				} else {
 					break;

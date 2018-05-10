@@ -3,19 +3,20 @@ package twilightforest.structures.finalcastle;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.Random;
 
-public class ComponentTFFinalCastleDungeonForgeRoom extends StructureTFComponent {
+public class ComponentTFFinalCastleDungeonForgeRoom extends StructureTFComponentOld {
 	public ComponentTFFinalCastleDungeonForgeRoom() {
 	}
 
-	public ComponentTFFinalCastleDungeonForgeRoom(Random rand, int i, int x, int y, int z, EnumFacing direction) {
-		super(i);
+	public ComponentTFFinalCastleDungeonForgeRoom(TFFeature feature, Random rand, int i, int x, int y, int z, EnumFacing direction) {
+		super(feature, i);
 		this.spawnListIndex = 3; // forge monsters
 		this.setCoordBaseMode(direction);
-		this.boundingBox = StructureTFComponent.getComponentToAddBoundingBox2(x, y, z, -15, 0, -15, 50, 30, 50, direction);
+		this.boundingBox = StructureTFComponentOld.getComponentToAddBoundingBox2(x, y, z, -15, 0, -15, 50, 30, 50, direction);
 	}
 
 

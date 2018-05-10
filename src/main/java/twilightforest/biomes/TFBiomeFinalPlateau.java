@@ -5,7 +5,7 @@ import net.minecraft.util.ResourceLocation;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFDeadrock;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.DeadrockVariant;
+import twilightforest.enums.DeadrockVariant;
 
 
 public class TFBiomeFinalPlateau extends TFBiomeBase {
@@ -32,7 +32,7 @@ public class TFBiomeFinalPlateau extends TFBiomeBase {
 	}
 
 	@Override
-	protected ResourceLocation getRequiredAchievement() {
-		return new ResourceLocation(TwilightForestMod.ID, "progress_glacier");
+	protected ResourceLocation[] getRequiredAdvancements() {
+		return new ResourceLocation[]{ new ResourceLocation(TwilightForestMod.ID, "progress_troll") };
 	}
 }

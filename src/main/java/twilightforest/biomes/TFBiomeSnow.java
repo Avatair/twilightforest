@@ -16,6 +16,7 @@ import twilightforest.TFFeature;
 import twilightforest.TwilightForestMod;
 import twilightforest.entity.EntityTFWinterWolf;
 import twilightforest.entity.EntityTFYeti;
+import twilightforest.potions.TFPotions;
 import twilightforest.world.TFGenLargeWinter;
 
 import java.util.ArrayList;
@@ -79,14 +80,14 @@ public class TFBiomeSnow extends TFBiomeBase {
 	}
 
 	@Override
-	protected ResourceLocation getRequiredAchievement() {
-		return new ResourceLocation(TwilightForestMod.ID, "progress_ur_ghast");
+	protected ResourceLocation[] getRequiredAdvancements() {
+		return new ResourceLocation[]{ new ResourceLocation(TwilightForestMod.ID, "progress_lich") };
 	}
 
 	@Override
 	public void enforceProgession(EntityPlayer player, World world) {
-		if (!world.isRemote && world.getWorldTime() % 60 == 0) {
-			player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 100, 2));
+		if (!world.isRemote && player.ticksExisted % 60 == 0) {
+			player.addPotionEffect(new PotionEffect(TFPotions.frosty, 100, 2));
 
 			// hint monster?
 			if (world.rand.nextInt(4) == 0) {

@@ -6,10 +6,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFCastleDoor;
 import twilightforest.block.BlockTFCastleMagic;
 import twilightforest.block.TFBlocks;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.structures.lichtower.ComponentTFTowerWing;
 
 import java.util.List;
@@ -20,21 +21,22 @@ public class ComponentTFFinalCastleLargeTower extends ComponentTFTowerWing {
 	public ComponentTFFinalCastleLargeTower() {
 	}
 
-	public ComponentTFFinalCastleLargeTower(Random rand, int i, int x, int y, int z, EnumFacing rotation) {
+	public ComponentTFFinalCastleLargeTower(TFFeature feature, Random rand, int i, int x, int y, int z, EnumFacing rotation) {
+		super(feature, i);
 		this.setCoordBaseMode(rotation);
 		this.size = 13;
 		this.height = 61;
-		this.boundingBox = StructureTFComponent.getComponentToAddBoundingBox(x, y, z, -6, 0, -6, 12, 60, 12, EnumFacing.SOUTH);
+		this.boundingBox = StructureTFComponentOld.getComponentToAddBoundingBox(x, y, z, -6, 0, -6, 12, 60, 12, EnumFacing.SOUTH);
 
 	}
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 		// add crown
-		ComponentTFFinalCastleRoof9Crenellated roof = new ComponentTFFinalCastleRoof9Crenellated(rand, 4, this);
+		ComponentTFFinalCastleRoof9Crenellated roof = new ComponentTFFinalCastleRoof9Crenellated(getFeatureType(), rand, 4, this);
 		list.add(roof);
 		roof.buildComponent(this, list, rand);
 	}
@@ -58,7 +60,7 @@ public class ComponentTFFinalCastleLargeTower extends ComponentTFTowerWing {
 		this.setBlockState(world, deco.blockState, 4, -7, 4, sbb);
 
 		// door, first floor
-		final IBlockState castleDoor = TFBlocks.castleDoor.getDefaultState()
+		final IBlockState castleDoor = TFBlocks.castle_door.getDefaultState()
 				.withProperty(BlockTFCastleDoor.LOCK_INDEX, 0); //this.getGlyphMeta()?
 		this.fillWithBlocks(world, sbb, 0, 1, 1, 0, 4, 3, castleDoor, AIR, false);
 

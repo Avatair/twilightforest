@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -21,8 +22,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twilightforest.block.enums.TowerDeviceVariant;
-import twilightforest.block.enums.TowerTranslucentVariant;
+import twilightforest.enums.TowerDeviceVariant;
+import twilightforest.enums.TowerTranslucentVariant;
 import twilightforest.client.ModelRegisterCallback;
 import twilightforest.client.ModelUtils;
 import twilightforest.item.TFItems;
@@ -31,7 +32,6 @@ import java.util.Random;
 
 public class BlockTFTowerTranslucent extends Block implements ModelRegisterCallback {
 	public static final PropertyEnum<TowerTranslucentVariant> VARIANT = PropertyEnum.create("variant", TowerTranslucentVariant.class);
-	private static final Random sideRNG = new Random();
 	private static final AxisAlignedBB REAPPEARING_BB = new AxisAlignedBB(0.375F, 0.375F, 0.375F, 0.625F, 0.625F, 0.625F);
 
 	public BlockTFTowerTranslucent() {
@@ -105,11 +105,20 @@ public class BlockTFTowerTranslucent extends Block implements ModelRegisterCallb
 
 		if (variant == TowerTranslucentVariant.REAPPEARING_INACTIVE || variant == TowerTranslucentVariant.REAPPEARING_ACTIVE) {
 			return REAPPEARING_BB;
-		} else if (variant == TowerTranslucentVariant.REACTOR_DEBRIS) {
-			return new AxisAlignedBB(sideRNG.nextFloat() * 0.4F, sideRNG.nextFloat() * 0.4F, sideRNG.nextFloat() * 0.4F,
-					1.0F - sideRNG.nextFloat() * 0.4F, 1.0F - sideRNG.nextFloat() * 0.4F, 1.0F - sideRNG.nextFloat() * 0.4F);
 		} else {
 			return FULL_BLOCK_AABB;
+		}
+	}
+
+	@Override
+	@Deprecated
+	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+		TowerTranslucentVariant variant = state.getValue(VARIANT);
+
+		if (variant == TowerTranslucentVariant.REAPPEARING_INACTIVE || variant == TowerTranslucentVariant.REAPPEARING_ACTIVE) {
+			return BlockFaceShape.UNDEFINED;
+		} else {
+			return super.getBlockFaceShape(worldIn, state, pos, face);
 		}
 	}
 
@@ -160,7 +169,7 @@ public class BlockTFTowerTranslucent extends Block implements ModelRegisterCallb
 				}
 			}
 			if (variant == TowerTranslucentVariant.REAPPEARING_ACTIVE) {
-				par1World.setBlockState(pos, TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.REAPPEARING_INACTIVE));
+				par1World.setBlockState(pos, TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.REAPPEARING_INACTIVE));
 				par1World.notifyNeighborsRespectDebug(pos, this, false);
 				par1World.playSound(null, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, SoundEvents.BLOCK_WOOD_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.5F);
 				//par1World.markBlockRangeForRenderUpdate(x, y, z, x, y, z);

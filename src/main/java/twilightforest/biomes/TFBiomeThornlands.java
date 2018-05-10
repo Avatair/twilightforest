@@ -10,7 +10,7 @@ import net.minecraft.world.chunk.Chunk;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFDeadrock;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.DeadrockVariant;
+import twilightforest.enums.DeadrockVariant;
 import twilightforest.world.TFGenThorns;
 import twilightforest.world.TFWorld;
 
@@ -75,7 +75,7 @@ public class TFBiomeThornlands extends TFBiomeBase {
 	}
 
 	@Override
-	protected ResourceLocation getRequiredAchievement() {
-		return new ResourceLocation(TwilightForestMod.ID, "progress_glacier");
+	protected ResourceLocation[] getRequiredAdvancements() {
+		return new ResourceLocation[]{ new ResourceLocation(TwilightForestMod.ID, "progress_troll") };
 	}
 }

@@ -8,26 +8,28 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.TFBlocks;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
 
-public class ComponentTFFinalCastleBridge extends StructureTFComponent {
+public class ComponentTFFinalCastleBridge extends StructureTFComponentOld {
 	public ComponentTFFinalCastleBridge() {
 	}
 
-	public ComponentTFFinalCastleBridge(int i, int x, int y, int z, int length, EnumFacing direction) {
+	public ComponentTFFinalCastleBridge(TFFeature feature, int i, int x, int y, int z, int length, EnumFacing direction) {
+		super(feature, i);
 		this.setCoordBaseMode(direction);
-		this.boundingBox = StructureTFComponent.getComponentToAddBoundingBox2(x, y, z, 0, -1, -3, length - 1, 5, 6, direction);
+		this.boundingBox = StructureTFComponentOld.getComponentToAddBoundingBox2(x, y, z, 0, -1, -3, length - 1, 5, 6, direction);
 
 	}
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 	}
 
@@ -40,7 +42,7 @@ public class ComponentTFFinalCastleBridge extends StructureTFComponent {
 		// rails
 		//fillWithRandomizedBlocks(world, sbb, 0, 1, 0, length, 2, 0, false, rand, deco.randomBlocks);
 		//fillWithRandomizedBlocks(world, sbb, 0, 1, 6, length, 2, 6, false, rand, deco.randomBlocks);
-		IBlockState castlePillar = TFBlocks.castlePillar.getDefaultState().withProperty(BlockLog.LOG_AXIS, (this.rotation == Rotation.NONE || this.rotation == Rotation.CLOCKWISE_180) ? BlockLog.EnumAxis.X : BlockLog.EnumAxis.Z);
+		IBlockState castlePillar = TFBlocks.castle_pillar.getDefaultState().withProperty(BlockLog.LOG_AXIS, (this.rotation == Rotation.NONE || this.rotation == Rotation.CLOCKWISE_180) ? BlockLog.EnumAxis.X : BlockLog.EnumAxis.Z);
 
 		fillWithBlocks(world, sbb, 0, 2, 0, length, 2, 0, castlePillar, castlePillar, false);
 		fillWithBlocks(world, sbb, 0, 2, 6, length, 2, 6, castlePillar, castlePillar, false);

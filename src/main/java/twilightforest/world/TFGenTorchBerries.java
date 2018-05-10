@@ -4,7 +4,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import twilightforest.block.BlockTFPlant;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.PlantVariant;
+import twilightforest.enums.PlantVariant;
 
 import java.util.Random;
 
@@ -16,8 +16,8 @@ public class TFGenTorchBerries extends TFGenerator {
 		int copyZ = pos.getZ();
 
 		for (; pos.getY() > 5; pos = pos.down()) {
-			if (par1World.isAirBlock(pos) && BlockTFPlant.canPlaceRootBelow(par1World, pos.up()) && par2Random.nextInt(6) > 0) {
-				par1World.setBlockState(pos, TFBlocks.plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.TORCHBERRY), 2);
+			if (par1World.isAirBlock(pos) && BlockTFPlant.canPlaceRootAt(par1World, pos) && par2Random.nextInt(6) > 0) {
+				par1World.setBlockState(pos, TFBlocks.twilight_plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.TORCHBERRY), 2);
 			} else {
 				pos = new BlockPos(
 						copyX + par2Random.nextInt(4) - par2Random.nextInt(4),

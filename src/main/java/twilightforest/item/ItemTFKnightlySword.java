@@ -16,12 +16,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twilightforest.TwilightForestMod;
 import twilightforest.client.ModelRegisterCallback;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = TwilightForestMod.ID)
 public class ItemTFKnightlySword extends ItemSword implements ModelRegisterCallback {
 
 	private static final int BONUS_DAMAGE = 2;
@@ -38,7 +39,7 @@ public class ItemTFKnightlySword extends ItemSword implements ModelRegisterCallb
 		if (!target.world.isRemote && evt.getSource().getImmediateSource() instanceof EntityLivingBase) {
 			ItemStack weapon = ((EntityLivingBase) evt.getSource().getImmediateSource()).getHeldItemMainhand();
 
-			if (target.getTotalArmorValue() > 0 && !weapon.isEmpty() && (weapon.getItem() == TFItems.knightlyAxe || weapon.getItem() == TFItems.knightlyPick || weapon.getItem() == TFItems.knightlySword)) {
+			if (!weapon.isEmpty() && ((target.getTotalArmorValue() > 0 && (weapon.getItem() == TFItems.knightmetal_pickaxe || weapon.getItem() == TFItems.knightmetal_sword)) || (target.getTotalArmorValue() == 0 && weapon.getItem() == TFItems.knightmetal_axe))) {
 				// TODO scale bonus dmg with the amount of armor?
 				target.attackEntityFrom(DamageSource.MAGIC, BONUS_DAMAGE);
 				// don't prevent main damage from applying

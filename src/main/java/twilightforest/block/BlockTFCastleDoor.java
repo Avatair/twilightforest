@@ -5,17 +5,17 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -23,6 +23,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twilightforest.TFPacketHandler;
+import twilightforest.client.ModelRegisterCallback;
+import twilightforest.client.ModelUtils;
 import twilightforest.item.TFItems;
 import twilightforest.network.PacketAnnihilateBlock;
 import twilightforest.world.ChunkGeneratorTwilightForest;
@@ -33,7 +35,7 @@ import java.util.Random;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class BlockTFCastleDoor extends Block {
+public class BlockTFCastleDoor extends Block implements ModelRegisterCallback {
 	public static final PropertyBool ACTIVE = PropertyBool.create("active");
 	public static final PropertyInteger LOCK_INDEX = PropertyInteger.create("lock_index", 0, 3);
 	private final boolean isVanished;
@@ -42,6 +44,12 @@ public class BlockTFCastleDoor extends Block {
 
 	public BlockTFCastleDoor(boolean isVanished) {
 		super(isVanished ? Material.GLASS : Material.ROCK);
+
+		//this.setBlockUnbreakable();
+		//this.setResistance(Float.MAX_VALUE);
+
+		this.setHardness(100F);
+		this.setResistance(35F);
 
 		this.isVanished = isVanished;
 		this.lightOpacity = isVanished ? 0 : 255;
@@ -81,6 +89,12 @@ public class BlockTFCastleDoor extends Block {
 	@Deprecated
 	public boolean isFullCube(IBlockState state) {
 		return !this.isVanished;
+	}
+
+	@Override
+	@Deprecated
+	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+		return isVanished ? BlockFaceShape.UNDEFINED : super.getBlockFaceShape(worldIn, state, pos, face);
 	}
 
 	@Override
@@ -149,7 +163,7 @@ public class BlockTFCastleDoor extends Block {
 		if (!par1World.isRemote) {
 			if (this.isVanished) {
 				if (state.getValue(ACTIVE)) {
-					par1World.setBlockState(pos, TFBlocks.castleDoor.getDefaultState().withProperty(LOCK_INDEX ,state.getValue(LOCK_INDEX)));
+					par1World.setBlockState(pos, TFBlocks.castle_door.getDefaultState().withProperty(LOCK_INDEX ,state.getValue(LOCK_INDEX)));
 					playVanishSound(par1World, pos);
 				} else {
 					changeToActiveBlock(par1World, pos, state);
@@ -178,6 +192,11 @@ public class BlockTFCastleDoor extends Block {
 		}
 	}
 
+	@Override
+	public int damageDropped(IBlockState state) {
+		return getMetaFromState(state);
+	}
+
 	private void sendAnnihilateBlockPacket(World world, BlockPos pos) {
 		IMessage message = new PacketAnnihilateBlock(pos);
 		NetworkRegistry.TargetPoint targetPoint = new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64);
@@ -193,7 +212,7 @@ public class BlockTFCastleDoor extends Block {
 	}
 
 	private static Block getOtherBlock(Block block) {
-		return block == TFBlocks.castleDoor ? TFBlocks.castleDoorVanished : TFBlocks.castleDoor;
+		return block == TFBlocks.castle_door ? TFBlocks.castle_door_vanished : TFBlocks.castle_door;
 	}
 
 	/**
@@ -202,10 +221,10 @@ public class BlockTFCastleDoor extends Block {
 	public static void checkAndActivateCastleDoor(World world, BlockPos pos) {
 		IBlockState state = world.getBlockState(pos);
 
-		if (state.getBlock() == TFBlocks.castleDoor && !state.getValue(ACTIVE) && !isBlockLocked(world, pos)) {
+		if (state.getBlock() == TFBlocks.castle_door && !state.getValue(ACTIVE) && !isBlockLocked(world, pos)) {
 			changeToActiveBlock(world, pos, state);
 		}
-//    	if (block == TFBlocks.castleDoorVanished && !isMetaActive(meta) && !isBlockLocked(world, x, y, z))
+//    	if (block == TFBlocks.castle_door_vanished && !isMetaActive(meta) && !isBlockLocked(world, x, y, z))
 //    	{
 //    		changeToActiveBlock(world, x, y, z, meta);
 //    	}
@@ -277,5 +296,24 @@ public class BlockTFCastleDoor extends Block {
 	@Deprecated
 	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 		return (!(blockAccess.getBlockState(pos.offset(side)).getBlock() instanceof BlockTFCastleDoor)) && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+	}
+
+	@Override
+	public void getSubBlocks(CreativeTabs par2CreativeTabs, NonNullList<ItemStack> par3List) {
+		if (this == TFBlocks.castle_door)
+			for (int i = 0; i < LOCK_INDEX.getAllowedValues().size(); i++) {
+				par3List.add(new ItemStack(this, 1, i));
+			}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void registerModel() {
+		ModelUtils.registerToStateSingleVariant(this, LOCK_INDEX);
+	}
+
+	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+		return new ItemStack(TFItems.castle_door, 1, state.getValue(LOCK_INDEX));
 	}
 }

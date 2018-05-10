@@ -4,7 +4,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.gen.structure.StructureComponent;
 import twilightforest.block.BlockTFCastleBlock;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.CastleBrickVariant;
+import twilightforest.enums.CastleBrickVariant;
 
 import java.util.Random;
 
@@ -26,7 +26,7 @@ public class StructureTFCastleBlocks extends StructureComponent.BlockSelector {
 				variant = CastleBrickVariant.NORMAL;
 			}
 
-			blockstate = TFBlocks.castleBlock.getDefaultState().withProperty(BlockTFCastleBlock.VARIANT, variant);
+			blockstate = TFBlocks.castle_brick.getDefaultState().withProperty(BlockTFCastleBlock.VARIANT, variant);
 		}
 	}
 

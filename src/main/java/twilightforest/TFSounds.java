@@ -6,7 +6,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = TwilightForestMod.ID)
 public final class TFSounds {
 
 	public static final SoundEvent KOBOLD_DEATH = createEvent("mob.kobold.die");
@@ -39,6 +39,8 @@ public final class TFSounds {
 	public static final SoundEvent ICE_HURT = createEvent("mob.ice.hurt");
 	public static final SoundEvent ICE_DEATH = createEvent("mob.ice.death");
 	public static final SoundEvent SLIDER = createEvent("random.slider");
+
+	public static final SoundEvent MUSIC = createEvent("music.bg");
 
 	private static SoundEvent createEvent(String sound) {
 		ResourceLocation name = new ResourceLocation(TwilightForestMod.ID, sound);
@@ -77,6 +79,8 @@ public final class TFSounds {
 		evt.getRegistry().register(ICE_DEATH);
 		evt.getRegistry().register(ICE_HURT);
 		evt.getRegistry().register(SLIDER);
+
+		evt.getRegistry().register(MUSIC);
 	}
 
 	private TFSounds() {

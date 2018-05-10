@@ -14,10 +14,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFBossSpawner;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.BossVariant;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.enums.BossVariant;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.util.RotationUtil;
 import twilightforest.util.TFEntityNames;
 import twilightforest.util.VanillaEntityNames;
@@ -30,12 +31,11 @@ public class ComponentTFTowerMain extends ComponentTFTowerWing {
 
 	public ComponentTFTowerMain() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public ComponentTFTowerMain(World world, Random rand, int index, int x, int y, int z) {
+	public ComponentTFTowerMain(TFFeature feature, World world, Random rand, int index, int x, int y, int z) {
 		// some of these are subject to change if the ground level is > 30.
-		super(index, x, y, z, 15, 55 + rand.nextInt(32), EnumFacing.SOUTH);
+		super(feature, index, x, y, z, 15, 55 + rand.nextInt(32), EnumFacing.SOUTH);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class ComponentTFTowerMain extends ComponentTFTowerWing {
 	public boolean makeTowerOutbuilding(List<StructureComponent> list, Random rand, int index, int x, int y, int z, int wingSize, int wingHeight, Rotation rotation) {
 		EnumFacing direction = getStructureRelativeRotation(rotation);
 		int[] dx = offsetTowerCoords(x, y, z, wingSize, direction);
-		ComponentTFTowerOutbuilding outbuilding = new ComponentTFTowerOutbuilding(index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
+		ComponentTFTowerOutbuilding outbuilding = new ComponentTFTowerOutbuilding(getFeatureType(), index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, outbuilding.getBoundingBox());
 		if (intersect == null) {
@@ -164,7 +164,7 @@ public class ComponentTFTowerMain extends ComponentTFTowerWing {
 	@Override
 	public boolean addComponentParts(World world, Random rand, StructureBoundingBox sbb) {
 		// make walls
-		fillWithRandomizedBlocks(world, sbb, 0, 0, 0, size - 1, height - 1, size - 1, false, rand, StructureTFComponent.getStrongholdStones());
+		fillWithRandomizedBlocks(world, sbb, 0, 0, 0, size - 1, height - 1, size - 1, false, rand, StructureTFComponentOld.getStrongholdStones());
 
 		// clear inside
 		fillWithAir(world, sbb, 1, 1, 1, size - 2, height - 2, size - 2);

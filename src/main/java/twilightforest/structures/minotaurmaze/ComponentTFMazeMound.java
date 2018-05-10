@@ -6,16 +6,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
 
-public class ComponentTFMazeMound extends StructureTFComponent {
+public class ComponentTFMazeMound extends StructureTFComponentOld {
 
 	public ComponentTFMazeMound() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
@@ -24,8 +24,8 @@ public class ComponentTFMazeMound extends StructureTFComponent {
 
 	private ComponentTFMazeUpperEntrance mazeAbove;
 
-	public ComponentTFMazeMound(int i, Random rand, int x, int y, int z) {
-		super(i);
+	public ComponentTFMazeMound(TFFeature feature, int i, Random rand, int x, int y, int z) {
+		super(feature, i);
 		this.setCoordBaseMode(EnumFacing.HORIZONTALS[rand.nextInt(4)]);
 
 		this.boundingBox = new StructureBoundingBox(x, y, z, x + DIAMETER, y + 8, z + DIAMETER);
@@ -39,7 +39,7 @@ public class ComponentTFMazeMound extends StructureTFComponent {
 		super.buildComponent(structurecomponent, list, random);
 
 		// add aboveground maze entrance building
-		mazeAbove = new ComponentTFMazeUpperEntrance(3, random, boundingBox.minX + 10, boundingBox.minY + 0, boundingBox.minZ + 10);
+		mazeAbove = new ComponentTFMazeUpperEntrance(getFeatureType(), 3, random, boundingBox.minX + 10, boundingBox.minY + 0, boundingBox.minZ + 10);
 		list.add(mazeAbove);
 		mazeAbove.buildComponent(this, list, random);
 	}

@@ -7,7 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import twilightforest.block.BlockTFLog;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.WoodVariant;
+import twilightforest.enums.WoodVariant;
 
 import java.util.Random;
 
@@ -25,9 +25,9 @@ public class TFGenDarkCanopyTree extends TFTreeGenerator {
 
 	public TFGenDarkCanopyTree(boolean par1) {
 		super(par1);
-		treeState = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
+		treeState = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
 		branchState = treeState.withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE);
-		leafState = TFBlocks.darkleaves.getDefaultState();
+		leafState = TFBlocks.dark_leaves.getDefaultState();
 		rootState = TFBlocks.root.getDefaultState();
 	}
 

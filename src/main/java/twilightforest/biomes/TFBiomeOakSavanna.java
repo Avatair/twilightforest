@@ -10,7 +10,7 @@ import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import twilightforest.block.BlockTFPlant;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.PlantVariant;
+import twilightforest.enums.PlantVariant;
 import twilightforest.world.TFGenCanopyOak;
 import twilightforest.world.TFGenNoTree;
 import twilightforest.world.TFGenTallGrass;
@@ -45,7 +45,7 @@ public class TFBiomeOakSavanna extends TFBiomeBase {
 		if (par1Random.nextInt(10) == 0) {
 			return new WorldGenTallGrass(BlockTallGrass.EnumType.FERN);
 		} else if (par1Random.nextInt(10) == 0) {
-			return new TFGenTallGrass(TFBlocks.plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.MAYAPPLE));
+			return new TFGenTallGrass(TFBlocks.twilight_plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.MAYAPPLE));
 		} else {
 			return new WorldGenTallGrass(BlockTallGrass.EnumType.GRASS);
 		}

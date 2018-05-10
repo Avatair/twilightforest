@@ -10,7 +10,7 @@ import twilightforest.TFSounds;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFTowerDevice;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.TowerDeviceVariant;
+import twilightforest.enums.TowerDeviceVariant;
 import twilightforest.client.particle.TFParticleType;
 import twilightforest.entity.EntityTFTowerGhast;
 import twilightforest.entity.boss.EntityTFUrGhast;
@@ -96,7 +96,7 @@ public class TileEntityTFGhastTrapActive extends TileEntity implements ITickable
 			}
 
 			if (counter >= 120) {
-				world.setBlockState(pos, TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.GHASTTRAP_INACTIVE), 3);
+				world.setBlockState(pos, TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.GHASTTRAP_INACTIVE), 3);
 			}
 		}
 	}

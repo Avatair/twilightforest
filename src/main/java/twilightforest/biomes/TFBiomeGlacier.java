@@ -14,6 +14,7 @@ import net.minecraft.world.gen.feature.WorldGenTaiga1;
 import net.minecraft.world.gen.feature.WorldGenTaiga2;
 import twilightforest.TFFeature;
 import twilightforest.TwilightForestMod;
+import twilightforest.potions.TFPotions;
 import twilightforest.world.TFGenPenguins;
 import twilightforest.world.TFWorld;
 
@@ -72,14 +73,14 @@ public class TFBiomeGlacier extends TFBiomeBase {
 	}
 
 	@Override
-	protected ResourceLocation getRequiredAchievement() {
-		return new ResourceLocation(TwilightForestMod.ID, "progress_ur_ghast");
+	protected ResourceLocation[] getRequiredAdvancements() {
+		return new ResourceLocation[]{ new ResourceLocation(TwilightForestMod.ID, "progress_yeti") };
 	}
 
 	@Override
 	public void enforceProgession(EntityPlayer player, World world) {
-		if (!world.isRemote && world.getWorldTime() % 60 == 0) {
-			player.addPotionEffect(new PotionEffect(MobEffects.SLOWNESS, 100, 3));
+		if (!world.isRemote && player.ticksExisted % 60 == 0) {
+			player.addPotionEffect(new PotionEffect(TFPotions.frosty, 100, 3));
 		}
 		// hint monster?
 		if (world.rand.nextInt(4) == 0) {

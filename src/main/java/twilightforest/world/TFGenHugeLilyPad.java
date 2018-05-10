@@ -12,10 +12,10 @@ import java.util.Random;
 
 import static twilightforest.block.BlockTFHugeLilyPad.FACING;
 import static twilightforest.block.BlockTFHugeLilyPad.PIECE;
-import static twilightforest.block.enums.HugeLilypadPiece.NE;
-import static twilightforest.block.enums.HugeLilypadPiece.NW;
-import static twilightforest.block.enums.HugeLilypadPiece.SE;
-import static twilightforest.block.enums.HugeLilypadPiece.SW;
+import static twilightforest.enums.HugeLilypadPiece.NE;
+import static twilightforest.enums.HugeLilypadPiece.NW;
+import static twilightforest.enums.HugeLilypadPiece.SE;
+import static twilightforest.enums.HugeLilypadPiece.SW;
 
 
 /**
@@ -38,7 +38,7 @@ public class TFGenHugeLilyPad extends WorldGenerator {
 
 			if (shouldPlacePadAt(world, dPos) && world.isAreaLoaded(dPos, 1)) {
 				final EnumFacing horizontal = EnumFacing.getHorizontal(rand.nextInt(4));
-				final IBlockState lilypad = TFBlocks.hugeLilyPad.getDefaultState().withProperty(FACING, horizontal);
+				final IBlockState lilypad = TFBlocks.huge_lilypad.getDefaultState().withProperty(FACING, horizontal);
 
 				world.setBlockState(dPos, lilypad.withProperty(PIECE, NW), 2);
 				world.setBlockState(dPos.east(), lilypad.withProperty(PIECE, NE), 2);

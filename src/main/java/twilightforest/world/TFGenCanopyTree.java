@@ -9,8 +9,8 @@ import net.minecraft.world.World;
 import twilightforest.block.BlockTFLeaves;
 import twilightforest.block.BlockTFLog;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.LeavesVariant;
-import twilightforest.block.enums.WoodVariant;
+import twilightforest.enums.LeavesVariant;
+import twilightforest.enums.WoodVariant;
 
 import java.util.List;
 import java.util.Random;
@@ -34,9 +34,9 @@ public class TFGenCanopyTree extends TFTreeGenerator {
 
 	public TFGenCanopyTree(boolean par1) {
 		super(par1);
-		treeState = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.CANOPY);
+		treeState = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.CANOPY);
 		branchState = treeState.withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE);
-		leafState = TFBlocks.leaves.getDefaultState().withProperty(BlockTFLeaves.VARIANT, LeavesVariant.CANOPY).withProperty(BlockLeaves.CHECK_DECAY, false);
+		leafState = TFBlocks.twilight_leaves.getDefaultState().withProperty(BlockTFLeaves.VARIANT, LeavesVariant.CANOPY).withProperty(BlockLeaves.CHECK_DECAY, false);
 		rootState = TFBlocks.root.getDefaultState();
 	}
 

@@ -3,7 +3,11 @@ package twilightforest.entity.boss;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityFlying;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IEntityLivingData;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,12 +28,20 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import twilightforest.TFFeature;
 import twilightforest.TFSounds;
 import twilightforest.TFTreasure;
+import twilightforest.block.BlockTFBossSpawner;
+import twilightforest.block.TFBlocks;
+import twilightforest.enums.BossVariant;
 import twilightforest.entity.NoClipMoveHelper;
-import twilightforest.entity.ai.*;
+import twilightforest.entity.ai.EntityAIPhantomAttackStart;
+import twilightforest.entity.ai.EntityAIPhantomThrowWeapon;
+import twilightforest.entity.ai.EntityAITFFindEntityNearestPlayer;
+import twilightforest.entity.ai.EntityAITFPhantomUpdateFormationAndMove;
+import twilightforest.entity.ai.EntityAITFPhantomWatchAndAttack;
 import twilightforest.item.TFItems;
 import twilightforest.world.ChunkGeneratorTwilightForest;
 import twilightforest.world.TFWorld;
@@ -59,9 +71,9 @@ public class EntityTFKnightPhantom extends EntityFlying implements IMob {
 	@Override
 	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
 		IEntityLivingData data = super.onInitialSpawn(difficulty, livingdata);
-		setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlySword));
-		setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(TFItems.phantomPlate));
-		setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(TFItems.phantomHelm));
+		setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_sword));
+		setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(TFItems.phantom_chestplate));
+		setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(TFItems.phantom_helmet));
 		return data;
 	}
 
@@ -107,18 +119,30 @@ public class EntityTFKnightPhantom extends EntityFlying implements IMob {
 	}
 
 	@Override
-	public boolean attackEntityFrom(DamageSource source, float par2) {
-		return source != DamageSource.IN_WALL && super.attackEntityFrom(source, par2);
+	public boolean isEntityInvulnerable(DamageSource src) {
+		return src == DamageSource.IN_WALL || super.isEntityInvulnerable(src);
+	}
+
+	private void despawnIfPeaceful() {
+		if (!world.isRemote && world.getDifficulty() == EnumDifficulty.PEACEFUL) {
+			if (hasHome() && getNumber() == 0) {
+				BlockPos home = this.getHomePosition();
+				world.setBlockState(home, TFBlocks.bossSpawner.getDefaultState().withProperty(BlockTFBossSpawner.VARIANT, BossVariant.KNIGHT_PHANTOM));
+			}
+
+			setDead();
+		}
 	}
 
 	@Override
 	public void onLivingUpdate() {
 		super.onLivingUpdate();
+		despawnIfPeaceful();
 
 		if (isChargingAtPlayer()) {
 			// make particles
 			for (int i = 0; i < 4; ++i) {
-				Item particleID = rand.nextBoolean() ? TFItems.phantomHelm : TFItems.knightlySword;
+				Item particleID = rand.nextBoolean() ? TFItems.phantom_helmet : TFItems.knightmetal_sword;
 
 				world.spawnParticle(EnumParticleTypes.ITEM_CRACK, posX + (rand.nextFloat() - 0.5D) * width, posY + rand.nextFloat() * (height - 0.75D) + 0.5D, posZ + (rand.nextFloat() - 0.5D) * width, 0, -0.1, 0, Item.getIdFromItem(particleID));
 				world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, posX + (rand.nextFloat() - 0.5D) * width, posY + rand.nextFloat() * (height - 0.75D) + 0.5D, posZ + (rand.nextFloat() - 0.5D) * width, 0, 0.1, 0);
@@ -367,15 +391,15 @@ public class EntityTFKnightPhantom extends EntityFlying implements IMob {
 	}
 
 	public boolean isSwordKnight() {
-		return getHeldItemMainhand().getItem() == TFItems.knightlySword;
+		return getHeldItemMainhand().getItem() == TFItems.knightmetal_sword;
 	}
 
 	public boolean isAxeKnight() {
-		return getHeldItemMainhand().getItem() == TFItems.knightlyAxe;
+		return getHeldItemMainhand().getItem() == TFItems.knightmetal_axe;
 	}
 
 	public boolean isPickKnight() {
-		return getHeldItemMainhand().getItem() == TFItems.knightlyPick;
+		return getHeldItemMainhand().getItem() == TFItems.knightmetal_pickaxe;
 	}
 
 	public int getNumber() {
@@ -388,13 +412,13 @@ public class EntityTFKnightPhantom extends EntityFlying implements IMob {
 		// set weapon per number
 		switch (number % 3) {
 			case 0:
-				setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlySword));
+				setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_sword));
 				break;
 			case 1:
-				setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlyAxe));
+				setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_axe));
 				break;
 			case 2:
-				setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlyPick));
+				setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_pickaxe));
 				break;
 		}
 	}
@@ -455,6 +479,11 @@ public class EntityTFKnightPhantom extends EntityFlying implements IMob {
 
 		ATTACK_PLAYER_ATTACK
 
+	}
+
+	@Override
+	public boolean isNonBoss() {
+		return false;
 	}
 
 	// [VanillaCopy] Home fields and methods from EntityCreature, changes noted

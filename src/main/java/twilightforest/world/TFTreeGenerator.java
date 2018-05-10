@@ -1,24 +1,24 @@
 package twilightforest.world;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockLog;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 import twilightforest.block.BlockTFHedge;
 import twilightforest.block.BlockTFLog;
-import twilightforest.block.TFBlockProperties;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.HedgeVariant;
-import twilightforest.block.enums.WoodVariant;
+import twilightforest.enums.HedgeVariant;
+import twilightforest.enums.WoodVariant;
 
 public abstract class TFTreeGenerator extends WorldGenAbstractTree implements IBlockSettable {
 
-	protected IBlockState treeState = TFBlocks.log.getDefaultState();
-	protected IBlockState branchState = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE).withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
+	protected IBlockState treeState = TFBlocks.twilight_log.getDefaultState();
+	protected IBlockState branchState = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE).withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
 	protected IBlockState leafState = TFBlocks.hedge.getDefaultState().withProperty(BlockTFHedge.VARIANT, HedgeVariant.DARKWOOD_LEAVES);
 	protected IBlockState rootState = TFBlocks.root.getDefaultState();
 
@@ -64,13 +64,18 @@ public abstract class TFTreeGenerator extends WorldGenAbstractTree implements IB
 	}
 
 	public static boolean canRootGrowIn(World world, BlockPos pos) {
-		Block blockID = world.getBlockState(pos).getBlock();
+		IBlockState blockState = world.getBlockState(pos);
+		Block blockID = blockState.getBlock();
 
-		if (blockID == Blocks.AIR) {
+		if (blockID.isAir(blockState, world, pos)) {
 			// roots can grow through air if they are near a solid block
 			return TFGenerator.isNearSolid(world, pos);
 		} else {
-			return blockID != Blocks.BEDROCK && blockID != Blocks.OBSIDIAN && blockID != TFBlocks.shield;
+			return (blockState.getBlockHardness(world, pos) >= 0)
+					&& blockID != TFBlocks.stronghold_shield
+					&& blockID != TFBlocks.trophy_pedestal
+					&& blockID != TFBlocks.bossSpawner
+					&& (blockState.getMaterial() == Material.GRASS || blockState.getMaterial() == Material.GROUND || blockState.getMaterial() == Material.ROCK);
 		}
 	}
 
@@ -83,13 +88,13 @@ public abstract class TFTreeGenerator extends WorldGenAbstractTree implements IB
 	protected void addFirefly(World world, BlockPos pos, int height, double angle) {
 		int iAngle = (int) (angle * 4.0);
 		if (iAngle == 0) {
-			setIfEmpty(world, pos.add(1, height, 0), TFBlocks.firefly.getDefaultState().withProperty(TFBlockProperties.FACING, EnumFacing.EAST));
+			setIfEmpty(world, pos.add( 1, height,  0), TFBlocks.firefly.getDefaultState().withProperty(BlockDirectional.FACING, EnumFacing.EAST));
 		} else if (iAngle == 1) {
-			setIfEmpty(world, pos.add(-1, height, 0), TFBlocks.firefly.getDefaultState().withProperty(TFBlockProperties.FACING, EnumFacing.WEST));
+			setIfEmpty(world, pos.add(-1, height,  0), TFBlocks.firefly.getDefaultState().withProperty(BlockDirectional.FACING, EnumFacing.WEST));
 		} else if (iAngle == 2) {
-			setIfEmpty(world, pos.add(0, height, 1), TFBlocks.firefly.getDefaultState().withProperty(TFBlockProperties.FACING, EnumFacing.SOUTH));
+			setIfEmpty(world, pos.add( 0, height,  1), TFBlocks.firefly.getDefaultState().withProperty(BlockDirectional.FACING, EnumFacing.SOUTH));
 		} else if (iAngle == 3) {
-			setIfEmpty(world, pos.add(0, height, -1), TFBlocks.firefly.getDefaultState().withProperty(TFBlockProperties.FACING, EnumFacing.NORTH));
+			setIfEmpty(world, pos.add( 0, height, -1), TFBlocks.firefly.getDefaultState().withProperty(BlockDirectional.FACING, EnumFacing.NORTH));
 		}
 	}
 

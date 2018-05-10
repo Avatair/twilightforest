@@ -15,6 +15,7 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.world.TFGenSmallRainboak;
 import twilightforest.world.TFGenSmallTwilightOak;
 
@@ -28,27 +29,27 @@ public class ComponentTFStrongholdAtrium extends StructureTFStrongholdComponent 
 	public ComponentTFStrongholdAtrium() {
 	}
 
-	public ComponentTFStrongholdAtrium(int i, EnumFacing facing, int x, int y, int z) {
-		super(i, facing, x, y, z);
+	public ComponentTFStrongholdAtrium(TFFeature feature, int i, EnumFacing facing, int x, int y, int z) {
+		super(feature, i, facing, x, y, z);
 	}
 
 	/**
 	 * Save to NBT
 	 */
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setBoolean("enterBottom", this.enterBottom);
+		tagCompound.setBoolean("enterBottom", this.enterBottom);
 	}
 
 	/**
 	 * Load from NBT
 	 */
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.enterBottom = par1NBTTagCompound.getBoolean("enterBottom");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.enterBottom = tagCompound.getBoolean("enterBottom");
 	}
 
 	@Override

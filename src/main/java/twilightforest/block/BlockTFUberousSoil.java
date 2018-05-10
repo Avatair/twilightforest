@@ -5,6 +5,7 @@ import net.minecraft.block.BlockFarmland;
 import net.minecraft.block.IGrowable;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -49,6 +50,18 @@ public class BlockTFUberousSoil extends Block implements IGrowable, ModelRegiste
 	}
 
 	@Override
+	@Deprecated
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
+	@Override
+	@Deprecated
+	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+		return face == EnumFacing.DOWN ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+	}
+
+	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
 		return Item.getItemFromBlock(Blocks.DIRT);
 	}
@@ -63,7 +76,9 @@ public class BlockTFUberousSoil extends Block implements IGrowable, ModelRegiste
 
 	@Override
 	public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plantable) {
-		EnumPlantType plantType = plantable.getPlantType(world, pos.up());
+		if (direction != EnumFacing.UP)
+			return false;
+		EnumPlantType plantType = plantable.getPlantType(world, pos.offset(direction));
 		return plantType == EnumPlantType.Crop || plantType == EnumPlantType.Plains || plantType == EnumPlantType.Cave;
 	}
 
@@ -77,11 +92,12 @@ public class BlockTFUberousSoil extends Block implements IGrowable, ModelRegiste
 			world.setBlockState(pos, Blocks.DIRT.getDefaultState());
 		}
 
-		if (above instanceof IPlantable) {
-			IPlantable plant = (IPlantable) above;
+		// todo should probably use IGrowable and loop until it can't grow anymore
+		if (above.getBlock() instanceof IPlantable) {
+			IPlantable plant = (IPlantable) above.getBlock();
 			// revert to farmland or grass
 			if (plant.getPlantType(world, pos.up()) == EnumPlantType.Crop) {
-				world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, 2), 2);
+				world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, 2));
 			} else if (plant.getPlantType(world, pos.up()) == EnumPlantType.Plains) {
 				world.setBlockState(pos, Blocks.GRASS.getDefaultState());
 			} else {

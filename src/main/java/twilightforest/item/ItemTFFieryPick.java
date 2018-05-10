@@ -19,13 +19,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twilightforest.TwilightForestMod;
 import twilightforest.client.ModelRegisterCallback;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = TwilightForestMod.ID)
 public class ItemTFFieryPick extends ItemPickaxe implements ModelRegisterCallback {
 
 	protected ItemTFFieryPick(Item.ToolMaterial par2EnumToolMaterial) {
@@ -36,7 +37,7 @@ public class ItemTFFieryPick extends ItemPickaxe implements ModelRegisterCallbac
 	@SubscribeEvent
 	public static void onDrops(BlockEvent.HarvestDropsEvent event) {
 		if (event.getHarvester() != null && !event.getHarvester().getHeldItemMainhand().isEmpty()
-				&& event.getHarvester().inventory.getCurrentItem().getItem() == TFItems.fieryPick
+				&& event.getHarvester().inventory.getCurrentItem().getItem() == TFItems.fiery_pickaxe
 				&& ForgeHooks.canHarvestBlock(event.getState().getBlock(), event.getHarvester(), event.getWorld(), event.getPos())) {
 			List<ItemStack> removeThese = new ArrayList<ItemStack>();
 			List<ItemStack> addThese = new ArrayList<ItemStack>();

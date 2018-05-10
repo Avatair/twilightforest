@@ -4,7 +4,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.gen.structure.StructureComponent;
 import twilightforest.block.BlockTFUnderBrick;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.UnderBrickVariant;
+import twilightforest.enums.UnderBrickVariant;
 
 import java.util.Random;
 
@@ -18,11 +18,11 @@ public class StructureTFKnightStones extends StructureComponent.BlockSelector {
 			float var6 = par1Random.nextFloat();
 
 			if (var6 < 0.2F) {
-				this.blockstate = TFBlocks.underBrick.getDefaultState().withProperty(BlockTFUnderBrick.VARIANT, UnderBrickVariant.CRACKED);
+				this.blockstate = TFBlocks.underbrick.getDefaultState().withProperty(BlockTFUnderBrick.VARIANT, UnderBrickVariant.CRACKED);
 			} else if (var6 < 0.5F) {
-				this.blockstate = TFBlocks.underBrick.getDefaultState().withProperty(BlockTFUnderBrick.VARIANT, UnderBrickVariant.MOSSY);
+				this.blockstate = TFBlocks.underbrick.getDefaultState().withProperty(BlockTFUnderBrick.VARIANT, UnderBrickVariant.MOSSY);
 			} else {
-				this.blockstate = TFBlocks.underBrick.getDefaultState().withProperty(BlockTFUnderBrick.VARIANT, UnderBrickVariant.NORMAL);
+				this.blockstate = TFBlocks.underbrick.getDefaultState().withProperty(BlockTFUnderBrick.VARIANT, UnderBrickVariant.NORMAL);
 			}
 		}
 	}

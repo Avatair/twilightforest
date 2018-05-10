@@ -20,10 +20,10 @@ import twilightforest.block.TFBlocks;
 
 import static twilightforest.block.BlockTFHugeLilyPad.FACING;
 import static twilightforest.block.BlockTFHugeLilyPad.PIECE;
-import static twilightforest.block.enums.HugeLilypadPiece.NE;
-import static twilightforest.block.enums.HugeLilypadPiece.NW;
-import static twilightforest.block.enums.HugeLilypadPiece.SE;
-import static twilightforest.block.enums.HugeLilypadPiece.SW;
+import static twilightforest.enums.HugeLilypadPiece.NE;
+import static twilightforest.enums.HugeLilypadPiece.NW;
+import static twilightforest.enums.HugeLilypadPiece.SE;
+import static twilightforest.enums.HugeLilypadPiece.SW;
 
 
 public class ItemBlockTFHugeLilyPad extends ItemColored {
@@ -68,7 +68,7 @@ public class ItemBlockTFHugeLilyPad extends ItemColored {
 					// TF - set 4 of them
 					EnumFacing direction = playerIn.getHorizontalFacing();
 
-					final IBlockState lilypad = TFBlocks.hugeLilyPad.getDefaultState().withProperty(FACING, direction);
+					final IBlockState lilypad = TFBlocks.huge_lilypad.getDefaultState().withProperty(FACING, direction);
 					worldIn.setBlockState(blockpos1, lilypad.withProperty(PIECE, NW), 10);
 					worldIn.setBlockState(blockpos1.east(), lilypad.withProperty(PIECE, NE), 10);
 					worldIn.setBlockState(blockpos1.east().south(), lilypad.withProperty(PIECE, SE), 10);
@@ -79,7 +79,7 @@ public class ItemBlockTFHugeLilyPad extends ItemColored {
 					}
 
 					playerIn.addStat(StatList.getObjectUseStats(this));
-					worldIn.playSound(playerIn, blockpos, TFBlocks.hugeLilyPad.getSoundType(iblockstate, worldIn, blockpos, playerIn).getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 1.0F);
+					worldIn.playSound(playerIn, blockpos, TFBlocks.huge_lilypad.getSoundType(iblockstate, worldIn, blockpos, playerIn).getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 1.0F);
 					return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
 				}
 			}

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import twilightforest.TwilightForestMod;
-import twilightforest.client.model.ModelTFLich;
+import twilightforest.client.model.entity.ModelTFLich;
 import twilightforest.entity.boss.EntityTFLich;
 
 public class RenderTFLich extends RenderBiped<EntityTFLich> {
@@ -35,7 +35,7 @@ public class RenderTFLich extends RenderBiped<EntityTFLich> {
 				GlStateManager.color(shadow, shadow, shadow, 0.8F);
 				//	return 2;
 			} else {
-				// shield alpha (shield texture already has alpha
+				// stronghold_shield alpha (stronghold_shield texture already has alpha
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0f);
 				//	return 1;
 			}

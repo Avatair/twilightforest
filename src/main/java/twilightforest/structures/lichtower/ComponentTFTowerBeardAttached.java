@@ -2,7 +2,8 @@ package twilightforest.structures.lichtower;
 
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.Random;
 
@@ -11,12 +12,11 @@ public class ComponentTFTowerBeardAttached extends ComponentTFTowerBeard {
 
 	public ComponentTFTowerBeardAttached() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
-	public ComponentTFTowerBeardAttached(int i, ComponentTFTowerWing wing) {
-		super(i, wing);
+	public ComponentTFTowerBeardAttached(TFFeature feature, int i, ComponentTFTowerWing wing) {
+		super(feature, i, wing);
 
 		// just hang out at the very bottom of the tower
 		this.boundingBox = new StructureBoundingBox(wing.getBoundingBox().minX, wing.getBoundingBox().minY - this.height - 1, wing.getBoundingBox().minZ, wing.getBoundingBox().maxX, wing.getBoundingBox().minY - 1, wing.getBoundingBox().maxZ);
@@ -37,7 +37,7 @@ public class ComponentTFTowerBeardAttached extends ComponentTFTowerBeard {
 			int min = y + 1;
 			int max = size - y;
 
-			fillWithRandomizedBlocks(world, sbb, 0, height - y, min, max, height - y, max, false, rand, StructureTFComponent.getStrongholdStones());
+			fillWithRandomizedBlocks(world, sbb, 0, height - y, min, max, height - y, max, false, rand, StructureTFComponentOld.getStrongholdStones());
 		}
 		return true;
 	}

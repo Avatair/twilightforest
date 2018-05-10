@@ -8,6 +8,7 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -55,7 +56,7 @@ public class BlockTFExperiment115 extends Block implements ModelRegisterCallback
 
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-        return new ItemStack(TFItems.experiment115);
+        return new ItemStack(TFItems.experiment_115);
     }
 
     @Override
@@ -85,12 +86,17 @@ public class BlockTFExperiment115 extends Block implements ModelRegisterCallback
     }
 
     @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+        return BlockFaceShape.UNDEFINED;
+    }
+
+    @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         int bitesTaken = state.getValue(NOMS);
         ItemStack stack = player.getHeldItem(hand);
 
         if (!player.isSneaking()) {
-            if (bitesTaken > 0 && stack.getItem() == TFItems.experiment115) {
+            if (bitesTaken > 0 && stack.getItem() == TFItems.experiment_115) {
                 worldIn.setBlockState(pos, state.withProperty(NOMS, bitesTaken - 1));
                 if (!player.isCreative()) stack.shrink(1);
                 if (player instanceof EntityPlayerMP) CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, stack);
@@ -117,7 +123,7 @@ public class BlockTFExperiment115 extends Block implements ModelRegisterCallback
             else       world.setBlockToAir(pos);
 
             if (player instanceof EntityPlayerMP)
-                CriteriaTriggers.CONSUME_ITEM.trigger((EntityPlayerMP) player, new ItemStack(TFItems.experiment115, 8 - i));
+                CriteriaTriggers.CONSUME_ITEM.trigger((EntityPlayerMP) player, new ItemStack(TFItems.experiment_115, 8 - i));
 
             return true;
         }
@@ -196,8 +202,8 @@ public class BlockTFExperiment115 extends Block implements ModelRegisterCallback
 
     @SideOnly(Side.CLIENT)
     public void registerModel() {
-        ModelLoader.setCustomModelResourceLocation(TFItems.experiment115, 0, new ModelResourceLocation(TwilightForestMod.ID + ":experiment_115", "inventory"));
-        ModelLoader.setCustomModelResourceLocation(TFItems.experiment115, 1, new ModelResourceLocation(TwilightForestMod.ID + ":experiment_115", "inventory_full"));
-        ModelLoader.setCustomModelResourceLocation(TFItems.experiment115, 2, new ModelResourceLocation(TwilightForestMod.ID + ":experiment_115", "inventory_think"));
+        ModelLoader.setCustomModelResourceLocation(TFItems.experiment_115, 0, new ModelResourceLocation(TwilightForestMod.ID + ":experiment_115", "inventory"));
+        ModelLoader.setCustomModelResourceLocation(TFItems.experiment_115, 1, new ModelResourceLocation(TwilightForestMod.ID + ":experiment_115", "inventory_full"));
+        ModelLoader.setCustomModelResourceLocation(TFItems.experiment_115, 2, new ModelResourceLocation(TwilightForestMod.ID + ":experiment_115", "inventory_think"));
     }
 }

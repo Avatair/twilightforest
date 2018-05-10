@@ -18,11 +18,11 @@ import java.util.List;
 
 public class ItemTFGiantPick extends ItemPickaxe implements ModelRegisterCallback {
 
-	protected ItemTFGiantPick(Item.ToolMaterial par2EnumToolMaterial) {
-		super(par2EnumToolMaterial);
+	protected ItemTFGiantPick(Item.ToolMaterial material) {
+		super(material);
 		this.setCreativeTab(TFItems.creativeTab);
-		this.damageVsEntity = 4 + par2EnumToolMaterial.getDamageVsEntity();
-
+		this.damageVsEntity = 8 + material.getDamageVsEntity();
+		this.attackSpeed = -3.5F;
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class ItemTFGiantPick extends ItemPickaxe implements ModelRegisterCallbac
 	public float getStrVsBlock(ItemStack stack, IBlockState state) {
 		float strVsBlock = super.getStrVsBlock(stack, state);
 		// extra 64X strength vs giant obsidian
-		strVsBlock *= (state.getBlock() == TFBlocks.giantObsidian) ? 64 : 1;
+		strVsBlock *= (state.getBlock() == TFBlocks.giant_obsidian) ? 64 : 1;
 		// 64x strength vs giant blocks
 		return state.getBlock() instanceof BlockTFGiantBlock ? strVsBlock * 64 : strVsBlock;
 	}

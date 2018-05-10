@@ -97,13 +97,14 @@ public class EntityTFIceExploder extends EntityMob {
 
 		if (this.deathTime == 60) // delay until 3 seconds
 		{
-			boolean mobGriefing = this.world.getGameRules().getBoolean("mobGriefing");
-			this.world.createExplosion(this, this.posX, this.posY, this.posZ, EntityTFIceExploder.EXPLOSION_RADIUS, mobGriefing);
+			if (!world.isRemote) {
+				boolean mobGriefing = this.world.getGameRules().getBoolean("mobGriefing");
+				this.world.createExplosion(this, this.posX, this.posY, this.posZ, EntityTFIceExploder.EXPLOSION_RADIUS, mobGriefing);
 
-			if (mobGriefing) {
-				this.transformBlocks();
+				if (mobGriefing) {
+					this.transformBlocks();
+				}
 			}
-
 			// Fake to trigger super's behaviour
 			deathTime = 19;
 			super.onDeathUpdate();
@@ -157,7 +158,7 @@ public class EntityTFIceExploder extends EntityMob {
 
 
 	private boolean shouldTransformGlass(IBlockState state, BlockPos pos) {
-		return state.getBlock() != Blocks.AIR && this.isBlockNormalBounds(state, pos) && (!state.getMaterial().isOpaque() || state.getBlock().isLeaves(state, this.world, pos) || state.getBlock() == Blocks.ICE || state.getBlock() == TFBlocks.auroraBlock);
+		return state.getBlock() != Blocks.AIR && this.isBlockNormalBounds(state, pos) && (!state.getMaterial().isOpaque() || state.getBlock().isLeaves(state, this.world, pos) || state.getBlock() == Blocks.ICE || state.getBlock() == TFBlocks.aurora_block);
 	}
 
 
@@ -176,11 +177,11 @@ public class EntityTFIceExploder extends EntityMob {
 		int bestDifference = 1024;
 
 		for (EnumDyeColor color : EnumDyeColor.values()) {
-			int iColor = color.getColorValue();
+			float[] iColor = color.getColorComponentValues();
 
-			int iRed = (iColor >> 16) & 255;
-			int iGreen = (iColor >> 8) & 255;
-			int iBlue = iColor & 255;
+			int iRed = (int) (iColor[0] * 255F);
+			int iGreen = (int) (iColor[1] * 255F);
+			int iBlue = (int) (iColor[2] * 255F);
 
 			int difference = Math.abs(red - iRed) + Math.abs(green - iGreen) + Math.abs(blue - iBlue);
 

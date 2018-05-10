@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.block.TFBlocks;
 import twilightforest.world.TFGenerator;
 
@@ -32,8 +33,8 @@ public class ComponentTFHollowTreeMedBranch extends StructureTFTreeComponent {
 		super();
 	}
 
-	protected ComponentTFHollowTreeMedBranch(int i, int sx, int sy, int sz, double length, double angle, double tilt, boolean leafy) {
-		super(i);
+	protected ComponentTFHollowTreeMedBranch(TFFeature feature, int i, int sx, int sy, int sz, double length, double angle, double tilt, boolean leafy) {
+		super(feature, i);
 
 		this.src = new BlockPos(sx, sy, sz);
 		this.dest = TFGenerator.translate(src, length, angle, tilt);
@@ -64,19 +65,19 @@ public class ComponentTFHollowTreeMedBranch extends StructureTFTreeComponent {
 	 * Save to NBT
 	 */
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setInteger("srcPosX", this.src.getX());
-		par1NBTTagCompound.setInteger("srcPosY", this.src.getY());
-		par1NBTTagCompound.setInteger("srcPosZ", this.src.getZ());
-		par1NBTTagCompound.setInteger("destPosX", this.dest.getX());
-		par1NBTTagCompound.setInteger("destPosY", this.dest.getY());
-		par1NBTTagCompound.setInteger("destPosZ", this.dest.getZ());
-		par1NBTTagCompound.setDouble("branchLength", this.length);
-		par1NBTTagCompound.setDouble("branchAngle", this.angle);
-		par1NBTTagCompound.setDouble("branchTilt", this.tilt);
-		par1NBTTagCompound.setBoolean("branchLeafy", this.leafy);
+		tagCompound.setInteger("srcPosX", this.src.getX());
+		tagCompound.setInteger("srcPosY", this.src.getY());
+		tagCompound.setInteger("srcPosZ", this.src.getZ());
+		tagCompound.setInteger("destPosX", this.dest.getX());
+		tagCompound.setInteger("destPosY", this.dest.getY());
+		tagCompound.setInteger("destPosZ", this.dest.getZ());
+		tagCompound.setDouble("branchLength", this.length);
+		tagCompound.setDouble("branchAngle", this.angle);
+		tagCompound.setDouble("branchTilt", this.tilt);
+		tagCompound.setBoolean("branchLeafy", this.leafy);
 
 	}
 
@@ -84,21 +85,21 @@ public class ComponentTFHollowTreeMedBranch extends StructureTFTreeComponent {
 	 * Load from NBT
 	 */
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
 
 
-		this.src = new BlockPos(par1NBTTagCompound.getInteger("srcPosX"), par1NBTTagCompound.getInteger("srcPosY"), par1NBTTagCompound.getInteger("srcPosZ"));
-		this.dest = new BlockPos(par1NBTTagCompound.getInteger("destPosX"), par1NBTTagCompound.getInteger("destPosY"), par1NBTTagCompound.getInteger("destPosZ"));
+		this.src = new BlockPos(tagCompound.getInteger("srcPosX"), tagCompound.getInteger("srcPosY"), tagCompound.getInteger("srcPosZ"));
+		this.dest = new BlockPos(tagCompound.getInteger("destPosX"), tagCompound.getInteger("destPosY"), tagCompound.getInteger("destPosZ"));
 
-		this.length = par1NBTTagCompound.getDouble("branchLength");
-		this.angle = par1NBTTagCompound.getDouble("branchAngle");
-		this.tilt = par1NBTTagCompound.getDouble("branchTilt");
-		this.leafy = par1NBTTagCompound.getBoolean("branchLeafy");
+		this.length = tagCompound.getDouble("branchLength");
+		this.angle = tagCompound.getDouble("branchAngle");
+		this.tilt = tagCompound.getDouble("branchTilt");
+		this.leafy = tagCompound.getBoolean("branchLeafy");
 	}
 
 	public void makeSmallBranch(List<StructureComponent> list, Random rand, int index, int x, int y, int z, double branchLength, double branchRotation, double branchAngle, boolean leafy) {
-		ComponentTFHollowTreeSmallBranch branch = new ComponentTFHollowTreeSmallBranch(index, x, y, z, branchLength, branchRotation, branchAngle, leafy);
+		ComponentTFHollowTreeSmallBranch branch = new ComponentTFHollowTreeSmallBranch(getFeatureType(), index, x, y, z, branchLength, branchRotation, branchAngle, leafy);
 		list.add(branch);
 		branch.buildComponent(this, list, rand);
 	}
@@ -116,7 +117,7 @@ public class ComponentTFHollowTreeMedBranch extends StructureTFTreeComponent {
 
 		if (!drawLeaves)
 		{
-			IBlockState log = TFBlocks.log.getDefaultState().withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
+			IBlockState log = TFBlocks.twilight_log.getDefaultState().withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
 			drawBresehnam(world, sbb, rSrc.getX(), rSrc.getY(), rSrc.getZ(), rDest.getX(), rDest.getY(), rDest.getZ(), log);
 			drawBresehnam(world, sbb, rSrc.getX(), rSrc.getY() + 1, rSrc.getZ(), rDest.getX(), rDest.getY(), rDest.getZ(), log);
 		}
@@ -191,7 +192,7 @@ public class ComponentTFHollowTreeMedBranch extends StructureTFTreeComponent {
 					// if we're inside the blob, fill it
 					if (dist <= radius) {
 						// do eight at a time for easiness!
-						final IBlockState leaves = TFBlocks.leaves.getDefaultState().withProperty(BlockLeaves.CHECK_DECAY, false);
+						final IBlockState leaves = TFBlocks.twilight_leaves.getDefaultState().withProperty(BlockLeaves.CHECK_DECAY, false);
 						placeLeafBlock(world, leaves, sx + dx, sy + dy, sz + dz, sbb);
 						placeLeafBlock(world, leaves, sx + dx, sy + dy, sz - dz, sbb);
 						placeLeafBlock(world, leaves, sx - dx, sy + dy, sz + dz, sbb);
@@ -216,7 +217,7 @@ public class ComponentTFHollowTreeMedBranch extends StructureTFTreeComponent {
 
 		if (!drawLeaves)
 		{
-			IBlockState log = TFBlocks.log.getDefaultState().withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
+			IBlockState log = TFBlocks.twilight_log.getDefaultState().withProperty(LOG_AXIS, BlockLog.EnumAxis.NONE);
 			drawBresehnam(world, sbb, sx, sy, sz, branchDest.getX(), branchDest.getY(), branchDest.getZ(), log);
 		}
 		else

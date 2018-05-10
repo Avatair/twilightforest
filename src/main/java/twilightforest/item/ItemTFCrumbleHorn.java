@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import twilightforest.block.BlockTFMazestone;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.MazestoneVariant;
+import twilightforest.enums.MazestoneVariant;
 import twilightforest.util.WorldUtil;
 
 public class ItemTFCrumbleHorn extends ItemTF {
@@ -101,8 +101,8 @@ public class ItemTFCrumbleHorn extends ItemTF {
 				cost++;
 			}
 
-			if (currentID == TFBlocks.mazestone && state.getValue(BlockTFMazestone.VARIANT) == MazestoneVariant.BRICK && world.rand.nextInt(CHANCE_CRUMBLE) == 0) {
-				world.setBlockState(pos, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.CRACKED), 3);
+			if (currentID == TFBlocks.maze_stone && state.getValue(BlockTFMazestone.VARIANT) == MazestoneVariant.BRICK && world.rand.nextInt(CHANCE_CRUMBLE) == 0) {
+				world.setBlockState(pos, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.CRACKED), 3);
 				world.playEvent(2001, pos, Block.getStateId(state));
 				cost++;
 			}

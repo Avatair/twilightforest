@@ -79,6 +79,27 @@
   {
     "ingredient": {
       "type": "forge:ore_dict",
+      "ore": "carminite"
+    },
+    "name": "CARMINITE"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "furArctic"
+    },
+    "name": "FURARCTIC"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "ingotFiery"
+    },
+    "name": "INGOTFIERY"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
       "ore": "nuggetGold"
     },
     "name": "NUGGETGOLD"
@@ -110,5 +131,19 @@
       "ore": "workbench"
     },
     "name": "WORKBENCH"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "stone"
+    },
+    "name": "STONE"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "brickStone"
+    },
+    "name": "STONEBRICK"
   }
 ]

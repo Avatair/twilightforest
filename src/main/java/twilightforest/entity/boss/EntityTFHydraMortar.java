@@ -74,9 +74,26 @@ public class EntityTFHydraMortar extends EntityThrowable {
 			// we hit the ground
 			this.motionY = 0;
 			this.onGround = true;
-		} else if (!world.isRemote) {
+		} else if (!world.isRemote && mop.entityHit != thrower && !isPartOfHydra(mop.entityHit)) {
 			detonate();
 		}
+	}
+
+	private boolean isPartOfHydra(Entity entity) {
+		if (thrower instanceof EntityTFHydraPart) {
+			EntityTFHydra hydra = ((EntityTFHydraPart) thrower).hydraObj;
+			if (hydra == null || hydra.getParts() == null)
+				return false;
+			if (entity == hydra)
+				return true;
+			for (Entity e : hydra.getParts())
+				if (entity == e)
+					return true;
+			for (HydraHeadContainer container : hydra.hc)
+				if (entity == container.headEntity)
+					return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -92,7 +109,8 @@ public class EntityTFHydraMortar extends EntityThrowable {
 
 	private void detonate() {
 		float explosionPower = megaBlast ? 4.0F : 0.1F;
-		this.world.newExplosion(this, this.posX, this.posY, this.posZ, explosionPower, true, true);
+		boolean flag = world.getGameRules().getBoolean("mobGriefing");
+		this.world.newExplosion(this, this.posX, this.posY, this.posZ, explosionPower, flag, flag);
 
 		DamageSource src = new EntityDamageSourceIndirect("onFire", this, getThrower()).setFireDamage().setProjectile();
 

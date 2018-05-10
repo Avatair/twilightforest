@@ -6,24 +6,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFMazestone;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.MazestoneVariant;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.enums.MazestoneVariant;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
 
-public class ComponentTFMazeUpperEntrance extends StructureTFComponent {
+public class ComponentTFMazeUpperEntrance extends StructureTFComponentOld {
 
 	public ComponentTFMazeUpperEntrance() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
-	public ComponentTFMazeUpperEntrance(int i, Random rand, int x, int y, int z) {
-		super(i);
+	public ComponentTFMazeUpperEntrance(TFFeature feature, int i, Random rand, int x, int y, int z) {
+		super(feature, i);
 		this.setCoordBaseMode(EnumFacing.HORIZONTALS[rand.nextInt(4)]);
 
 		this.boundingBox = new StructureBoundingBox(x, y, z, x + 15, y + 4, z + 15);
@@ -41,12 +41,12 @@ public class ComponentTFMazeUpperEntrance extends StructureTFComponent {
 	public boolean addComponentParts(World world, Random rand, StructureBoundingBox sbb) {
 
 		// ceiling
-		this.generateMaybeBox(world, sbb, rand, 0.7F, 0, 5, 0, 15, 5, 15, TFBlocks.mazestone.getDefaultState(), AIR, true, 0);
+		this.generateMaybeBox(world, sbb, rand, 0.7F, 0, 5, 0, 15, 5, 15, TFBlocks.maze_stone.getDefaultState(), AIR, true, 0);
 
-		this.fillWithBlocks(world, sbb, 0, 0, 0, 15, 0, 15, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.MOSAIC), AIR, false);
-		this.fillWithBlocks(world, sbb, 0, 1, 0, 15, 1, 15, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, true);
-		this.fillWithBlocks(world, sbb, 0, 2, 0, 15, 3, 15, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.BRICK), AIR, true);
-		this.fillWithBlocks(world, sbb, 0, 4, 0, 15, 4, 15, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, true);
+		this.fillWithBlocks(world, sbb, 0, 0, 0, 15, 0, 15, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.MOSAIC), AIR, false);
+		this.fillWithBlocks(world, sbb, 0, 1, 0, 15, 1, 15, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, true);
+		this.fillWithBlocks(world, sbb, 0, 2, 0, 15, 3, 15, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.BRICK), AIR, true);
+		this.fillWithBlocks(world, sbb, 0, 4, 0, 15, 4, 15, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, true);
 		this.generateMaybeBox(world, sbb, rand, 0.2F, 0, 0, 0, 15, 5, 15, Blocks.GRAVEL.getDefaultState(), AIR, true, 0);
 
 
@@ -67,8 +67,8 @@ public class ComponentTFMazeUpperEntrance extends StructureTFComponent {
 		this.fillWithAir(world, sbb, 1, 1, 1, 14, 4, 14);
 
 		// entrance pit
-		this.fillWithBlocks(world, sbb, 5, 1, 5, 10, 1, 10, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, false);
-		this.fillWithBlocks(world, sbb, 5, 4, 5, 10, 4, 10, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, false);
+		this.fillWithBlocks(world, sbb, 5, 1, 5, 10, 1, 10, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, false);
+		this.fillWithBlocks(world, sbb, 5, 4, 5, 10, 4, 10, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.DECORATIVE), AIR, false);
 		this.generateMaybeBox(world, sbb, rand, 0.7F, 5, 2, 5, 10, 3, 10, Blocks.IRON_BARS.getDefaultState(), AIR, false, 0);
 //		this.fillWithBlocks(world, sbb, 5, 2, 5, 10, 3, 10, Blocks.IRON_BARS, 0, AIR, false);
 

@@ -10,12 +10,13 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twilightforest.block.enums.MazestoneVariant;
+import twilightforest.enums.MazestoneVariant;
 import twilightforest.client.ModelRegisterCallback;
 import twilightforest.client.ModelUtils;
 import twilightforest.item.ItemTFMazebreakerPick;
@@ -56,13 +57,14 @@ public class BlockTFMazestone extends Block implements ModelRegisterCallback {
 	}
 
 	@Override
-	public void harvestBlock(World world, EntityPlayer entityplayer, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
+	public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer entityplayer) {
+		super.onBlockHarvested(world, pos, state, entityplayer);
+		ItemStack stack = entityplayer.getHeldItem(EnumHand.MAIN_HAND);
+
 		// damage the player's pickaxe
-		if (!stack.isEmpty() && stack.getItem().isDamageable() && !(stack.getItem() instanceof ItemTFMazebreakerPick)) {
+		if (!world.isRemote && !stack.isEmpty() && stack.getItem().isDamageable() && !(stack.getItem() instanceof ItemTFMazebreakerPick)) {
 			stack.damageItem(16, entityplayer);
 		}
-
-		super.harvestBlock(world, entityplayer, pos, state, te, stack);
 	}
 
 	@Override

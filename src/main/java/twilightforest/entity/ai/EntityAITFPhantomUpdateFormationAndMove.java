@@ -32,7 +32,7 @@ public class EntityAITFPhantomUpdateFormationAndMove extends EntityAIBase {
 		if (boss.getTicksProgress() >= boss.getMaxTicksForFormation())
 			switchToNextFormation();
 		Vec3d dest = getDestination();
-		boss.getMoveHelper().setMoveTo(dest.x, dest.y, dest.z, boss.isChargingAtPlayer() ? 3 : 1);
+		boss.getMoveHelper().setMoveTo(dest.x, dest.y, dest.z, boss.isChargingAtPlayer() ? 2 : 1);
 	}
 
 	public Vec3d getDestination() {
@@ -86,13 +86,13 @@ public class EntityAITFPhantomUpdateFormationAndMove extends EntityAIBase {
 				// random weapon switch!
 				switch (boss.getRNG().nextInt(3)) {
 					case 0:
-						boss.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlySword));
+						boss.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_sword));
 						break;
 					case 1:
-						boss.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlyAxe));
+						boss.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_axe));
 						break;
 					case 2:
-						boss.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightlyPick));
+						boss.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(TFItems.knightmetal_pickaxe));
 						break;
 				}
 

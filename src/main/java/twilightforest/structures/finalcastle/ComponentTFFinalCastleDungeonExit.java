@@ -8,11 +8,12 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFCastleDoor;
 import twilightforest.block.BlockTFCastleMagic;
 import twilightforest.block.BlockTFForceField;
 import twilightforest.block.TFBlocks;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.util.StructureBoundingBoxUtils;
 
 import java.util.List;
@@ -22,15 +23,15 @@ public class ComponentTFFinalCastleDungeonExit extends ComponentTFFinalCastleDun
 	public ComponentTFFinalCastleDungeonExit() {
 	}
 
-	public ComponentTFFinalCastleDungeonExit(Random rand, int i, int x, int y, int z, EnumFacing direction, int level) {
-		super(rand, i, x, y, z, direction, level);
+	public ComponentTFFinalCastleDungeonExit(TFFeature feature, Random rand, int i, int x, int y, int z, EnumFacing direction, int level) {
+		super(feature, rand, i, x, y, z, direction, level);
 	}
 
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 
 		// no need for additional rooms, we're along the outside anyways
@@ -56,7 +57,7 @@ public class ComponentTFFinalCastleDungeonExit extends ComponentTFFinalCastleDun
 		super.addComponentParts(world, rand, sbb);
 
 		// door
-		final IBlockState castleDoor = TFBlocks.castleDoor.getDefaultState()
+		final IBlockState castleDoor = TFBlocks.castle_door.getDefaultState()
 				.withProperty(BlockTFCastleDoor.LOCK_INDEX, 2);
 		this.fillWithBlocks(world, sbb, 7, 0, 16, 7, 3, 18, castleDoor, AIR, false);
 		this.fillWithBlocks(world, sbb, 7, 4, 16, 7, 4, 18, deco.blockState, deco.blockState, false);

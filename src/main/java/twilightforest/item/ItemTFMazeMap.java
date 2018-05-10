@@ -29,7 +29,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twilightforest.TFMazeMapData;
 import twilightforest.TFPacketHandler;
 import twilightforest.client.ModelRegisterCallback;
-import twilightforest.network.PacketMapRewrap;
+import twilightforest.network.PacketMazeMap;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +44,7 @@ public class ItemTFMazeMap extends ItemMap implements ModelRegisterCallback {
 
 	// [VanillaCopy] super with own item and id, and y parameter, also whether we have an ore map or not
 	public static ItemStack setupNewMap(World world, double worldX, double worldZ, byte scale, boolean trackingPosition, boolean unlimitedTracking, double worldY, boolean mapOres) {
-		ItemStack itemstack = new ItemStack(mapOres ? TFItems.oreMap : TFItems.mazeMap, 1, world.getUniqueDataId(STR_ID));
+		ItemStack itemstack = new ItemStack(mapOres ? TFItems.ore_map : TFItems.maze_map, 1, world.getUniqueDataId(STR_ID));
 		String s = STR_ID + "_" + itemstack.getMetadata();
 		TFMazeMapData mapdata = new TFMazeMapData(s);
 		world.setData(s, mapdata);
@@ -287,7 +287,7 @@ public class ItemTFMazeMap extends ItemMap implements ModelRegisterCallback {
 	public Packet<?> createMapDataPacket(ItemStack stack, World worldIn, EntityPlayer player) {
 		Packet<?> p = super.createMapDataPacket(stack, worldIn, player);
 		if (p instanceof SPacketMaps) {
-			return TFPacketHandler.CHANNEL.getPacketFrom(new PacketMapRewrap(true, (SPacketMaps) p));
+			return TFPacketHandler.CHANNEL.getPacketFrom(new PacketMazeMap((SPacketMaps) p));
 		} else {
 			return p;
 		}

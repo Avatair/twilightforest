@@ -19,13 +19,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.TFTreasure;
 import twilightforest.block.BlockTFLog;
 import twilightforest.block.BlockTFTowerDevice;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.TowerDeviceVariant;
-import twilightforest.block.enums.WoodVariant;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.enums.TowerDeviceVariant;
+import twilightforest.enums.WoodVariant;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.structures.StructureTFDecorator;
 import twilightforest.structures.lichtower.ComponentTFTowerRoof;
 import twilightforest.structures.lichtower.ComponentTFTowerRoofAttachedSlab;
@@ -47,17 +48,17 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 	public ComponentTFDarkTowerWing() {
 	}
 
-	protected ComponentTFDarkTowerWing(int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
-		super(i, x, y, z, pSize, pHeight, direction);
+	protected ComponentTFDarkTowerWing(TFFeature feature, int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
+		super(feature, i, x, y, z, pSize, pHeight, direction);
 	}
 
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setBoolean("keyTower", this.keyTower);
+		tagCompound.setBoolean("keyTower", this.keyTower);
 
-		par1NBTTagCompound.setIntArray("doorTypeInts", this.getDoorsTypesAsIntArray());
+		tagCompound.setIntArray("doorTypeInts", this.getDoorsTypesAsIntArray());
 	}
 
 	/**
@@ -76,11 +77,11 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 	}
 
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.keyTower = par1NBTTagCompound.getBoolean("keyTower");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.keyTower = tagCompound.getBoolean("keyTower");
 
-		this.readDoorsTypesFromArray(par1NBTTagCompound.getIntArray("doorTypeInts"));
+		this.readDoorsTypesFromArray(tagCompound.getIntArray("doorTypeInts"));
 	}
 
 	/**
@@ -94,8 +95,8 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 
 		// we should have a door where we started
@@ -158,16 +159,16 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 			case 0:
 			case 1:
 			default:
-				roof = new ComponentTFDarkTowerRoofAntenna(index, this);
+				roof = new ComponentTFDarkTowerRoofAntenna(getFeatureType(), index, this);
 				break;
 			case 2:
-				roof = new ComponentTFDarkTowerRoofCactus(index, this);
+				roof = new ComponentTFDarkTowerRoofCactus(getFeatureType(), index, this);
 				break;
 			case 3:
-				roof = new ComponentTFDarkTowerRoofRings(index, this);
+				roof = new ComponentTFDarkTowerRoofRings(getFeatureType(), index, this);
 				break;
 			case 4:
-				roof = new ComponentTFDarkTowerRoofFourPost(index, this);
+				roof = new ComponentTFDarkTowerRoofFourPost(getFeatureType(), index, this);
 				break;
 		}
 
@@ -183,25 +184,25 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 
 		// this is our preferred roof type:
 		if (roofType == null && rand.nextInt(32) != 0) {
-			tryToFitRoof(list, rand, new ComponentTFTowerRoofGableForwards(index + 1, this));
+			tryToFitRoof(list, rand, new ComponentTFTowerRoofGableForwards(getFeatureType(), index + 1, this));
 		}
 
 		// this is for roofs that don't fit.
 		if (roofType == null && rand.nextInt(8) != 0) {
-			tryToFitRoof(list, rand, new ComponentTFTowerRoofSlabForwards(index + 1, this));
+			tryToFitRoof(list, rand, new ComponentTFTowerRoofSlabForwards(getFeatureType(), index + 1, this));
 		}
 
 		// finally, if we're cramped for space, try this
 		if (roofType == null && rand.nextInt(32) != 0) {
 			// fall through to this next roof
-			roof = new ComponentTFTowerRoofAttachedSlab(index + 1, this);
+			roof = new ComponentTFTowerRoofAttachedSlab(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 
 		// last resort
 		if (roofType == null) {
 			// fall through to this next roof
-			roof = new ComponentTFTowerRoofFence(index + 1, this);
+			roof = new ComponentTFTowerRoofFence(getFeatureType(), index + 1, this);
 			tryToFitRoof(list, rand, roof);
 		}
 	}
@@ -212,7 +213,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 	 */
 	@Override
 	public void makeABeard(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		ComponentTFDarkTowerBeard beard = new ComponentTFDarkTowerBeard(this.getComponentType() + 1, this);
+		ComponentTFDarkTowerBeard beard = new ComponentTFDarkTowerBeard(getFeatureType(), this.getComponentType() + 1, this);
 		list.add(beard);
 		beard.buildComponent(this, list, rand);
 	}
@@ -235,7 +236,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 			return false;
 		}
 
-		ComponentTFDarkTowerBridge bridge = new ComponentTFDarkTowerBridge(index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
+		ComponentTFDarkTowerBridge bridge = new ComponentTFDarkTowerBridge(getFeatureType(), index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, bridge.getBoundingBox());
 		if (intersect == null || intersect == this) {
@@ -258,7 +259,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 		int[] dx = offsetTowerCoords(x, y, z, 5, direction);
 
 
-		ComponentTFDarkTowerBalcony balcony = new ComponentTFDarkTowerBalcony(index, dx[0], dx[1], dx[2], direction);
+		ComponentTFDarkTowerBalcony balcony = new ComponentTFDarkTowerBalcony(getFeatureType(), index, dx[0], dx[1], dx[2], direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, balcony.getBoundingBox());
 		if (intersect == null || intersect == this) {
@@ -568,7 +569,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 	 * Decorate with a pressure plate triggered reappearing floor.  Only suitable for small towers
 	 */
 	private void decorateReappearingFloor(World world, Random rand, StructureBoundingBox sbb, Rotation rotation, int y) {
-		final IBlockState inactiveReappearing = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.REAPPEARING_INACTIVE);
+		final IBlockState inactiveReappearing = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.REAPPEARING_INACTIVE);
 		final IBlockState woodenPressurePlate = Blocks.WOODEN_PRESSURE_PLATE.getDefaultState();
 		// floor
 		this.fillBlocksRotated(world, sbb, 4, y, 3, 7, y, 5, inactiveReappearing, rotation);
@@ -793,8 +794,8 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 
 				StructureTFDecorator logDeco = new StructureDecoratorDarkTower();
 
-				logDeco.pillarState = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
-				logDeco.platformState = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
+				logDeco.pillarState = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
+				logDeco.platformState = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
 
 				decorateTreasureRoom(world, sbb, rotation, y, 4, logDeco);
 			} else {
@@ -809,7 +810,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 	 * Make a mostly soid timber floor
 	 */
 	protected void makeTimberFloor(World world, Random rand, StructureBoundingBox sbb, Rotation rotation, int y, int spacing) {
-		IBlockState beamID = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
+		IBlockState beamID = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
 		IBlockState beamStateNS = beamID.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.Z);
 		IBlockState beamStateUD = beamID.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.Y);
 		IBlockState beamStateEW = beamID.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.X);
@@ -843,7 +844,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 	 * Make a lattice of log blocks
 	 */
 	protected void makeSmallTimberBeams(World world, Random rand, StructureBoundingBox sbb, Rotation rotation, int y, boolean bottom, boolean top) {
-		IBlockState beamID = TFBlocks.log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
+		IBlockState beamID = TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.DARK);
 		IBlockState beamStateNS = beamID.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.X);
 		IBlockState beamStateUD = beamID.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.Y);
 		IBlockState beamStateEW = beamID.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.Z);
@@ -1130,7 +1131,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 		// nullify sky light
 		nullifySkyLightAtCurrentPosition(world, dx - 3, dy - 1, dz - 3, dx + 3, dy + 3, dz + 3);
 
-		final IBlockState inactiveVanish = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.VANISH_INACTIVE);
+		final IBlockState inactiveVanish = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.VANISH_INACTIVE);
 
 		// clear the door
 		if (dx == 0 || dx == size - 1) {
@@ -1150,7 +1151,7 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 		// nullify sky light
 		nullifySkyLightAtCurrentPosition(world, dx - 3, dy - 1, dz - 3, dx + 3, dy + 3, dz + 3);
 
-		final IBlockState inactiveReappearing = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.REAPPEARING_INACTIVE);
+		final IBlockState inactiveReappearing = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.REAPPEARING_INACTIVE);
 
 		// clear the door
 		if (dx == 0 || dx == size - 1) {
@@ -1172,8 +1173,8 @@ public class ComponentTFDarkTowerWing extends ComponentTFTowerWing {
 		nullifySkyLightAtCurrentPosition(world, dx - 3, dy - 1, dz - 3, dx + 3, dy + 3, dz + 3);
 
 		// clear the door
-		final IBlockState lockedVanish = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.VANISH_LOCKED);
-		final IBlockState inactiveVanish = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.VANISH_INACTIVE);
+		final IBlockState lockedVanish = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.VANISH_LOCKED);
+		final IBlockState inactiveVanish = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.VANISH_INACTIVE);
 
 		if (dx == 0 || dx == size - 1) {
 			this.fillWithBlocks(world, sbb, dx, dy - 1, dz - 2, dx, dy + 3, dz + 2, deco.accentState, AIR, false);

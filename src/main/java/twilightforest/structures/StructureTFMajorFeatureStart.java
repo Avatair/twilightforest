@@ -1,5 +1,6 @@
 package twilightforest.structures;
 
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -13,8 +14,9 @@ import net.minecraft.world.gen.structure.StructureStrongholdPieces;
 import twilightforest.TFFeature;
 import twilightforest.TwilightForestMod;
 import twilightforest.biomes.TFBiomes;
-import twilightforest.block.TFBlockProperties;
 import twilightforest.block.TFBlocks;
+import twilightforest.structures.courtyard.ComponentNagaCourtyardMain;
+import twilightforest.structures.courtyard.NagaCourtyardPieces;
 import twilightforest.structures.darktower.ComponentTFDarkTowerMain;
 import twilightforest.structures.darktower.TFDarkTowerPieces;
 import twilightforest.structures.finalcastle.ComponentTFFinalCastleMain;
@@ -36,6 +38,7 @@ import twilightforest.structures.trollcave.TFTrollCavePieces;
 import twilightforest.world.TFBiomeProvider;
 import twilightforest.world.TFWorld;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -62,12 +65,13 @@ public class StructureTFMajorFeatureStart extends StructureStart {
 		TFTrollCavePieces.registerPieces();
 		TFHollowTreePieces.registerPieces();
 		TFLichTowerPieces.registerPieces();
+		NagaCourtyardPieces.registerPieces();
 
 		// register one-off pieces here
 		MapGenStructureIO.registerStructureComponent(ComponentTFHedgeMaze.class, "TFHedge");
 		MapGenStructureIO.registerStructureComponent(ComponentTFHollowHill.class, "TFHill");
 		MapGenStructureIO.registerStructureComponent(ComponentTFHydraLair.class, "TFHydra");
-		MapGenStructureIO.registerStructureComponent(ComponentTFNagaCourtyard.class, "TFNaga");
+		//MapGenStructureIO.registerStructureComponent(ComponentNagaCourtyardMain.class, "TFNaga");
 		MapGenStructureIO.registerStructureComponent(ComponentTFQuestGrove.class, "TFQuest1");
 		MapGenStructureIO.registerStructureComponent(ComponentTFYetiCave.class, "TFYeti");
 	}
@@ -99,7 +103,7 @@ public class StructureTFMajorFeatureStart extends StructureStart {
 
 			while (!var6.isEmpty()) {
 				int var7 = rand.nextInt(var6.size());
-				StructureComponent var8 = (StructureComponent) var6.remove(var7);
+				StructureComponent var8 = var6.remove(var7);
 				var8.buildComponent(firstComponent, this.components, rand);
 			}
 
@@ -123,72 +127,73 @@ public class StructureTFMajorFeatureStart extends StructureStart {
 	/**
 	 * @return The first component we should add to our structure
 	 */
-	public StructureComponent makeFirstComponent(World world, Random rand, TFFeature feature, int x, int y, int z) {
+	@Nullable
+	public StructureComponent makeFirstComponent(World world, Random rand, @Nullable TFFeature feature, int x, int y, int z) {
 		/*if (feature != null) {
 			//FIXME: Debug, force only one kind of feature to spawn.
 			TwilightForestMod.LOGGER.info("Selected Debug Feature @ {} {} {}", x, y, z);
-			return new ComponentTFFinalCastleMain(world, rand, 0, x, y, z);
-		}*/
+			return new ComponentNagaCourtyardMain(feature, world, rand, 0, x, y, z);
+		}//*/
 
 		if (feature == TFFeature.nagaCourtyard) {
 			TwilightForestMod.LOGGER.info("Naga Courtyard @ {} {} {}", x, y, z);
-			return new ComponentTFNagaCourtyard(world, rand, 0, x, y, z);
+			return new ComponentNagaCourtyardMain(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.hedgeMaze) {
 			TwilightForestMod.LOGGER.info("Hedge Maze @ {} {} {}", x, y, z);
-			return new ComponentTFHedgeMaze(world, rand, 0, x, y, z);
+			return new ComponentTFHedgeMaze(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.hill1) {
 			TwilightForestMod.LOGGER.info("Hill 1 @ {} {} {}", x, y, z);
-			return new ComponentTFHollowHill(world, rand, 0, 1, x, y, z);
+			return new ComponentTFHollowHill(feature, world, rand, 0, 1, x, y, z);
 		}
 		if (feature == TFFeature.hill2) {
 			TwilightForestMod.LOGGER.info("Hill 2 @ {} {} {}", x, y, z);
-			return new ComponentTFHollowHill(world, rand, 0, 2, x, y, z);
+			return new ComponentTFHollowHill(feature, world, rand, 0, 2, x, y, z);
 		}
 		if (feature == TFFeature.hill3) {
 			TwilightForestMod.LOGGER.info("Hill 3 @ {} {} {}", x, y, z);
-			return new ComponentTFHollowHill(world, rand, 0, 3, x, y, z);
+			return new ComponentTFHollowHill(feature, world, rand, 0, 3, x, y, z);
 		}
 		if (feature == TFFeature.questGrove) {
 			TwilightForestMod.LOGGER.info("Quest Grove @ {} {} {}", x, y, z);
-			return new ComponentTFQuestGrove(world, rand, 0, x, y, z);
+			return new ComponentTFQuestGrove(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.hydraLair) {
 			TwilightForestMod.LOGGER.info("Hydra Lair @ {} {} {}", x, y, z);
-			return new ComponentTFHydraLair(world, rand, 0, x, y, z);
+			return new ComponentTFHydraLair(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.yetiCave) {
 			TwilightForestMod.LOGGER.info("Yeti Cave @ {} {} {}", x, y, z);
-			return new ComponentTFYetiCave(world, rand, 0, x, y, z);
+			return new ComponentTFYetiCave(feature, world, rand, 0, x, y, z);
 		}
 
 		if (feature == TFFeature.lichTower) {
 			TwilightForestMod.LOGGER.info("Lich Tower @ {} {} {}", x, y, z);
-			return new ComponentTFTowerMain(world, rand, 0, x, y, z);
+			return new ComponentTFTowerMain(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.trollCave) {
 			TwilightForestMod.LOGGER.info("Troll Cave @ {} {} {}", x, y, z);
-			return new ComponentTFTrollCaveMain(world, rand, 0, x, y, z);
+			return new ComponentTFTrollCaveMain(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.iceTower) {
 			TwilightForestMod.LOGGER.info("Ice Tower @ {} {} {}", x, y, z);
-			return new ComponentTFIceTowerMain(world, rand, 0, x, y, z);
+			return new ComponentTFIceTowerMain(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.darkTower) {
-			return new ComponentTFDarkTowerMain(world, rand, 0, x, y - 1, z);
+			return new ComponentTFDarkTowerMain(feature, world, rand, 0, x, y - 1, z);
 		}
 		if (feature == TFFeature.labyrinth) {
-			return new ComponentTFMazeRuins(world, rand, 0, x, y, z);
+			return new ComponentTFMazeRuins(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.mushroomTower) {
-			return new ComponentTFMushroomTowerMain(world, rand, 0, x, y, z);
+			return new ComponentTFMushroomTowerMain(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.tfStronghold) {
-			return new ComponentTFStrongholdEntrance(world, rand, 0, x, y, z);
+			return new ComponentTFStrongholdEntrance(feature, world, rand, 0, x, y, z);
 		}
 		if (feature == TFFeature.finalCastle) {
-			return new ComponentTFFinalCastleMain(world, rand, 0, x, y, z);
+			return new ComponentTFFinalCastleMain(feature, world, rand, 0, x, y, z);
 		}
 
 		return null;
@@ -236,7 +241,7 @@ public class StructureTFMajorFeatureStart extends StructureStart {
 //			for (StructureComponent component : (LinkedList<StructureComponent>) getComponents())
 //			{
 //				
-//				// TODO: we need to test the shield bounding box here, otherwise we lose shield facings across chunk boundires
+//				// TODO: we need to test the stronghold_shield bounding box here, otherwise we lose stronghold_shield facings across chunk boundires
 //				
 //	            if (isShieldable(component) ? isIntersectingLarger(par3StructureBoundingBox, component) : isIntersectingLarger(par3StructureBoundingBox, component))
 //	            {
@@ -270,7 +275,7 @@ public class StructureTFMajorFeatureStart extends StructureStart {
 	}
 
 	/**
-	 * Make the stronghold shield around a component's bounding box
+	 * Make the stronghold stronghold_shield around a component's bounding box
 	 */
 	private void addShieldFor(World world, StructureComponent component, List<StructureComponent> otherComponents, StructureBoundingBox chunkBox) {
 		StructureBoundingBox shieldBox = new StructureBoundingBox(component.getBoundingBox());
@@ -309,7 +314,7 @@ public class StructureTFMajorFeatureStart extends StructureStart {
 
 
 							if (notIntersecting) {
-								world.setBlockState(pos, TFBlocks.shield.getDefaultState().withProperty(TFBlockProperties.FACING, calculateShieldFacing(shieldBox, x, y, z)), 2);
+								world.setBlockState(pos, TFBlocks.stronghold_shield.getDefaultState().withProperty(BlockDirectional.FACING, calculateShieldFacing(shieldBox, x, y, z)), 2);
 							}
 
 						}

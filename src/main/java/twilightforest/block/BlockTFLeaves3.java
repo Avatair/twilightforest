@@ -1,6 +1,5 @@
 package twilightforest.block;
 
-import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockPlanks;
@@ -21,7 +20,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twilightforest.block.enums.Leaves3Variant;
+import twilightforest.TFConfig;
+import twilightforest.enums.Leaves3Variant;
 import twilightforest.client.ModelRegisterCallback;
 import twilightforest.client.ModelUtils;
 import twilightforest.item.TFItems;
@@ -37,13 +37,24 @@ public class BlockTFLeaves3 extends BlockLeaves implements ModelRegisterCallback
 	public static final PropertyEnum<Leaves3Variant> VARIANT = PropertyEnum.create("variant", Leaves3Variant.class);
 
 	protected BlockTFLeaves3() {
-		setCreativeTab(TFItems.creativeTab);
-		setDefaultState(
+		this.setCreativeTab(TFItems.creativeTab);
+		this.setLightOpacity(1);
+		this.setDefaultState(
 				blockState.getBaseState()
 						.withProperty(CHECK_DECAY, true)
 						.withProperty(DECAYABLE, true)
 						.withProperty(VARIANT, Leaves3Variant.THORN)
 		);
+	}
+
+	@Override
+	public int getLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return TFConfig.performance.leavesLightOpacity;
+	}
+
+	@Override
+	public boolean isFullCube(IBlockState state) {
+		return TFConfig.performance.leavesFullCube;
 	}
 
 	// [VanillaCopy] BlockLeavesNew.getMetaFromState - could subclass, but different VARIANT property
@@ -82,28 +93,18 @@ public class BlockTFLeaves3 extends BlockLeaves implements ModelRegisterCallback
 	}
 
 	@Override
-	public int damageDropped(IBlockState state) {
-		return 4; //todo 1.9 verify
-	}
-
-	@Override
 	public BlockPlanks.EnumType getWoodType(int meta) {
 		return BlockPlanks.EnumType.OAK;
 	}
 
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-		return new ItemStack(this, 1, getMetaFromState(state) & 0b11);
-	}
-
-	@Override
-	public int quantityDropped(Random rand) {
-		return 0;
+		return new ItemStack(this, 1, world.getBlockState(pos).getValue(VARIANT).ordinal());
 	}
 
 	@Override
 	public Item getItemDropped(IBlockState state, Random par2Random, int par3) {
-		return TFItems.magicBeans;
+		return TFItems.magic_beans;
 	}
 
 	@Override
@@ -118,10 +119,9 @@ public class BlockTFLeaves3 extends BlockLeaves implements ModelRegisterCallback
 		return true;
 	}
 
-
 	@Override
 	public List<ItemStack> onSheared(ItemStack item, IBlockAccess world, BlockPos pos, int fortune) {
-		return ImmutableList.of(); // todo 1.9
+		return NonNullList.withSize(1, new ItemStack(this, 1, world.getBlockState(pos).getValue(VARIANT).ordinal()));
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -139,5 +139,10 @@ public class BlockTFLeaves3 extends BlockLeaves implements ModelRegisterCallback
 	@Override
 	public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face) {
 		return 30;
+	}
+
+	@Override
+	public ItemStack getSilkTouchDrop(IBlockState state) {
+		return new ItemStack(this, 1, state.getValue(VARIANT).ordinal());
 	}
 }

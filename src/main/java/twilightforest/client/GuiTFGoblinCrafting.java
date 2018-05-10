@@ -25,6 +25,14 @@ public class GuiTFGoblinCrafting extends GuiContainer {
 	}
 
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		drawDefaultBackground();
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		renderHoveredToolTip(mouseX, mouseY);
+	}
+
+
+	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2) {
 		this.fontRenderer.drawString("Uncrafting Table", 8, 6, 4210752);
 		this.fontRenderer.drawString(I18n.format("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
@@ -49,7 +57,7 @@ public class GuiTFGoblinCrafting extends GuiContainer {
 			Slot uncrafting = tfContainer.getSlot(2 + i);
 			Slot assembly = tfContainer.getSlot(11 + i);
 
-			if (uncrafting.getStack() != null) {
+			if (!uncrafting.getStack().isEmpty()) {
 				drawSlotAsBackground(uncrafting, assembly);
 			}
 		}

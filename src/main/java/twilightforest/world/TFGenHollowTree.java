@@ -11,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import twilightforest.TFTreasure;
 import twilightforest.block.BlockTFLog;
-import twilightforest.block.TFBlockProperties;
 import twilightforest.block.TFBlocks;
 import twilightforest.entity.EntityTFSwarmSpider;
 
@@ -21,9 +20,9 @@ public class TFGenHollowTree extends TFGenerator {
 
 	private static final int LEAF_DUNGEON_CHANCE = 8;
 
-	protected IBlockState treeState = TFBlocks.log.getDefaultState();
+	protected IBlockState treeState = TFBlocks.twilight_log.getDefaultState();
 	protected IBlockState branchState = treeState.withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE);
-	protected IBlockState leafState = TFBlocks.leaves.getDefaultState().withProperty(BlockLeaves.CHECK_DECAY, false);
+	protected IBlockState leafState = TFBlocks.twilight_leaves.getDefaultState().withProperty(BlockLeaves.CHECK_DECAY, false);
 	protected IBlockState rootState = TFBlocks.root.getDefaultState();
 
 	public TFGenHollowTree() {
@@ -489,7 +488,7 @@ public class TFGenHollowTree extends TFGenerator {
 		}
 
 		if (TFBlocks.firefly.canPlaceBlockAt(world, src)) {
-			setBlockAndNotifyAdequately(world, src, TFBlocks.firefly.getDefaultState().withProperty(TFBlockProperties.FACING, facing));
+			setBlockAndNotifyAdequately(world, src, TFBlocks.firefly.getDefaultState().withProperty(BlockDirectional.FACING, facing));
 		}
 	}
 
@@ -510,7 +509,7 @@ public class TFGenHollowTree extends TFGenerator {
 		}
 
 		if (TFBlocks.cicada.canPlaceBlockAt(world, src)) {
-			setBlockAndNotifyAdequately(world, src, TFBlocks.cicada.getDefaultState().withProperty(TFBlockProperties.FACING, facing));
+			setBlockAndNotifyAdequately(world, src, TFBlocks.cicada.getDefaultState().withProperty(BlockDirectional.FACING, facing));
 		}
 	}
 

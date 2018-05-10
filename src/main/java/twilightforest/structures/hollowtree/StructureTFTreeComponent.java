@@ -5,17 +5,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
 
-public abstract class StructureTFTreeComponent extends StructureTFComponent
+public abstract class StructureTFTreeComponent extends StructureTFComponentOld
 {
 	public StructureTFTreeComponent() {}
 
-	public StructureTFTreeComponent(int i) {
-		super(i);
+	public StructureTFTreeComponent(TFFeature feature, int i) {
+		super(feature, i);
 	}
 
 	public abstract boolean addComponentParts(World world, Random random, StructureBoundingBox sbb, boolean drawLeaves);

@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twilightforest.block.enums.CastleBrickVariant;
+import twilightforest.enums.CastleBrickVariant;
 import twilightforest.client.ModelRegisterCallback;
 import twilightforest.client.ModelUtils;
 import twilightforest.item.ItemTFMazebreakerPick;
@@ -36,7 +36,7 @@ public class BlockTFCastleBlock extends Block implements ModelRegisterCallback {
 	public BlockTFCastleBlock() {
 		super(Material.ROCK);
 		this.setHardness(100F);
-		this.setResistance(15F);
+		this.setResistance(35F);
 		this.setSoundType(SoundType.STONE);
 		this.setCreativeTab(TFItems.creativeTab);
 		this.setDefaultState(blockState.getBaseState().withProperty(VARIANT, CastleBrickVariant.NORMAL));

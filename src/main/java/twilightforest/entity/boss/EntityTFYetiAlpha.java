@@ -1,6 +1,7 @@
 package twilightforest.entity.boss;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -11,6 +12,7 @@ import net.minecraft.entity.ai.EntityAIAttackRanged;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
+import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.monster.EntityMob;
@@ -50,19 +52,19 @@ public class EntityTFYetiAlpha extends EntityMob implements IRangedAttackMob {
 	public static final ResourceLocation LOOT_TABLE = new ResourceLocation(TwilightForestMod.ID, "entities/yeti_alpha");
 	private static final DataParameter<Byte> RAMPAGE_FLAG = EntityDataManager.createKey(EntityTFYetiAlpha.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> TIRED_FLAG = EntityDataManager.createKey(EntityTFYetiAlpha.class, DataSerializers.BYTE);
-	private final BossInfoServer bossInfo = new BossInfoServer(new TextComponentTranslation("entity." + EntityList.getKey(this) + ".name"), BossInfo.Color.WHITE, BossInfo.Overlay.PROGRESS);
+	private final BossInfoServer bossInfo = new BossInfoServer(getDisplayName(), BossInfo.Color.WHITE, BossInfo.Overlay.PROGRESS);
 	private int collisionCounter;
 	private boolean canRampage;
 
 	public EntityTFYetiAlpha(World par1World) {
 		super(par1World);
 		this.setSize(3.8F, 5.0F);
-		this.setPathPriority(PathNodeType.WATER, -1.0F);
 		this.experienceValue = 317;
 	}
 
 	@Override
 	protected void initEntityAI() {
+		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAITFYetiTired(this, 100));
 		this.tasks.addTask(2, new EntityAIStayNearHome(this, 2.0F));
 		this.tasks.addTask(3, new EntityAITFYetiRampage(this, 10, 180));
@@ -196,12 +198,14 @@ public class EntityTFYetiAlpha extends EntityMob implements IRangedAttackMob {
 	}
 
 	public void destroyBlocksInAABB(AxisAlignedBB box) {
-		for (BlockPos pos : WorldUtil.getAllInBB(box)) {
-			IBlockState state = world.getBlockState(pos);
-			Block block = state.getBlock();
+		if (world.getGameRules().getBoolean("mobGriefing")) {
+			for (BlockPos pos : WorldUtil.getAllInBB(box)) {
+				IBlockState state = world.getBlockState(pos);
+				Block block = state.getBlock();
 
-			if (!block.isAir(state, world, pos) && block != Blocks.OBSIDIAN && block != Blocks.END_STONE && block != Blocks.BEDROCK) {
-				world.destroyBlock(pos, false);
+				if (!block.isAir(state, world, pos) && block != Blocks.OBSIDIAN && block != Blocks.END_STONE && block != Blocks.BEDROCK && state.getBlockHardness(world, pos) >= 0 && state.getMaterial() != Material.WATER && state.getMaterial() != Material.LAVA) {
+					world.destroyBlock(pos, false);
+				}
 			}
 		}
 	}
@@ -383,6 +387,11 @@ public class EntityTFYetiAlpha extends EntityMob implements IRangedAttackMob {
 		if (this.hasCustomName()) {
 			this.bossInfo.setName(this.getDisplayName());
 		}
+	}
+
+	@Override
+	public boolean isNonBoss() {
+		return false;
 	}
 
 }

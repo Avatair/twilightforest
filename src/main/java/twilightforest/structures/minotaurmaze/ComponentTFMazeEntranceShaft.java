@@ -5,27 +5,27 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFMazestone;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.MazestoneVariant;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.enums.MazestoneVariant;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.world.TFWorld;
 
 import java.util.List;
 import java.util.Random;
 
-public class ComponentTFMazeEntranceShaft extends StructureTFComponent {
+public class ComponentTFMazeEntranceShaft extends StructureTFComponentOld {
 
 	public ComponentTFMazeEntranceShaft() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
 	private int averageGroundLevel = -1;
 
-	public ComponentTFMazeEntranceShaft(int i, Random rand, int x, int y, int z) {
-		super(i);
+	public ComponentTFMazeEntranceShaft(TFFeature feature, int i, Random rand, int x, int y, int z) {
+		super(feature, i);
 		this.setCoordBaseMode(EnumFacing.HORIZONTALS[rand.nextInt(4)]);
 
 		this.boundingBox = new StructureBoundingBox(x, y, z, x + 6 - 1, y + 14, z + 6 - 1);
@@ -53,7 +53,7 @@ public class ComponentTFMazeEntranceShaft extends StructureTFComponent {
 		}
 
 
-		this.fillWithBlocks(world, sbb, 0, 0, 0, 5, this.boundingBox.getYSize(), 5, TFBlocks.mazestone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.BRICK), AIR, true);
+		this.fillWithBlocks(world, sbb, 0, 0, 0, 5, this.boundingBox.getYSize(), 5, TFBlocks.maze_stone.getDefaultState().withProperty(BlockTFMazestone.VARIANT, MazestoneVariant.BRICK), AIR, true);
 		this.fillWithAir(world, sbb, 1, 0, 1, 4, this.boundingBox.getYSize(), 4);
 
 		return true;

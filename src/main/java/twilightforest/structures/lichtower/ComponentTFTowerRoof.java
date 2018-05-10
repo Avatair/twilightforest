@@ -5,24 +5,24 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.TFFeature;
+import twilightforest.structures.StructureTFComponentOld;
 
 import java.util.List;
 import java.util.Random;
 
 
-public abstract class ComponentTFTowerRoof extends StructureTFComponent {
+public abstract class ComponentTFTowerRoof extends StructureTFComponentOld {
 
 	protected int size;
 	protected int height;
 
 	public ComponentTFTowerRoof() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public ComponentTFTowerRoof(int i, ComponentTFTowerWing wing) {
-		super(i);
+	public ComponentTFTowerRoof(TFFeature feature, int i, ComponentTFTowerWing wing) {
+		super(feature, i);
 
 		this.spawnListIndex = -1;
 
@@ -33,21 +33,21 @@ public abstract class ComponentTFTowerRoof extends StructureTFComponent {
 	 * Save to NBT
 	 */
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setInteger("roofSize", this.size);
-		par1NBTTagCompound.setInteger("roofHeight", this.height);
+		tagCompound.setInteger("roofSize", this.size);
+		tagCompound.setInteger("roofHeight", this.height);
 	}
 
 	/**
 	 * Load from NBT
 	 */
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.size = par1NBTTagCompound.getInteger("roofSize");
-		this.height = par1NBTTagCompound.getInteger("roofHeight");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.size = tagCompound.getInteger("roofSize");
+		this.height = tagCompound.getInteger("roofHeight");
 	}
 
 	/**

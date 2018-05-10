@@ -4,9 +4,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFPlant;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.PlantVariant;
+import twilightforest.enums.PlantVariant;
 
 import java.util.Random;
 
@@ -14,11 +15,10 @@ public class ComponentTFMazeCorridorRoots extends ComponentTFMazeCorridor {
 
 	public ComponentTFMazeCorridorRoots() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public ComponentTFMazeCorridorRoots(int i, int x, int y, int z, EnumFacing rotation) {
-		super(i, x, y, z, rotation);
+	public ComponentTFMazeCorridorRoots(TFFeature feature, int i, int x, int y, int z, EnumFacing rotation) {
+		super(feature, i, x, y, z, rotation);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class ComponentTFMazeCorridorRoots extends ComponentTFMazeCorridor {
 
 					// roots
 					for (int y = 6 - length; y < 6; y++) {
-						this.setBlockState(world, TFBlocks.plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.ROOT_STRAND), x, y, z, sbb);
+						this.setBlockState(world, TFBlocks.twilight_plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.ROOT_STRAND), x, y, z, sbb);
 					}
 
 					// occasional gravel

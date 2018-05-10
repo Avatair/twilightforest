@@ -17,17 +17,17 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twilightforest.TwilightForestMod;
 import twilightforest.client.ModelRegisterCallback;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = TwilightForestMod.ID)
 public class ItemTFMinotaurAxe extends ItemAxe implements ModelRegisterCallback {
 	private static final int BONUS_CHARGING_DAMAGE = 7;
 
 	protected ItemTFMinotaurAxe(Item.ToolMaterial material) {
-		super(material, material.getDamageVsEntity(), -3.0f);
-		this.damageVsEntity = 4 + material.getDamageVsEntity();
+		super(material, 4F + material.getDamageVsEntity(), -3.0f);
 		this.setCreativeTab(TFItems.creativeTab);
 	}
 
@@ -48,7 +48,7 @@ public class ItemTFMinotaurAxe extends ItemAxe implements ModelRegisterCallback 
 				&& evt.getSource().getImmediateSource().isSprinting()) {
 			ItemStack weapon = ((EntityLivingBase) evt.getSource().getImmediateSource()).getHeldItemMainhand();
 
-			if (!weapon.isEmpty() && weapon.getItem() == TFItems.minotaurAxe) {
+			if (!weapon.isEmpty() && weapon.getItem() == TFItems.minotaur_axe) {
 				target.attackEntityFrom(DamageSource.MAGIC, BONUS_CHARGING_DAMAGE);
 				// don't prevent main damage from applying
 				target.hurtResistantTime = 0;

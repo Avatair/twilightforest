@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 
 import java.util.List;
 import java.util.Random;
@@ -20,21 +21,21 @@ public class ComponentTFStrongholdUpperAscender extends StructureTFStrongholdCom
 	public ComponentTFStrongholdUpperAscender() {
 	}
 
-	public ComponentTFStrongholdUpperAscender(int i, EnumFacing facing, int x, int y, int z) {
-		super(i, facing, x, y, z);
+	public ComponentTFStrongholdUpperAscender(TFFeature feature, int i, EnumFacing facing, int x, int y, int z) {
+		super(feature, i, facing, x, y, z);
 	}
 
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setBoolean("exitTop", this.exitTop);
+		tagCompound.setBoolean("exitTop", this.exitTop);
 	}
 
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.exitTop = par1NBTTagCompound.getBoolean("exitTop");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.exitTop = tagCompound.getBoolean("exitTop");
 	}
 
 	@Override

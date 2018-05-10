@@ -1,5 +1,6 @@
 package twilightforest.item;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -41,7 +42,7 @@ public class ItemTFScepterLifeDrain extends ItemTF {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand hand) {
 		player.setActiveHand(hand);
-		return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		return ActionResult.newResult(EnumActionResult.PASS, player.getHeldItem(hand));
 	}
 
 	/**
@@ -221,6 +222,11 @@ public class ItemTFScepterLifeDrain extends ItemTF {
 		return EnumAction.BOW;
 	}
 
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return slotChanged || newStack.getItem() != oldStack.getItem();
+	}
+
 	@Nonnull
 	@Override
 	public EnumRarity getRarity(ItemStack par1ItemStack) {
@@ -231,6 +237,6 @@ public class ItemTFScepterLifeDrain extends ItemTF {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flags) {
 		super.addInformation(stack, world, tooltip, flags);
-		tooltip.add((stack.getMaxDamage() - stack.getItemDamage()) + " charges left");
+		tooltip.add(I18n.format("twilightforest.scepter_charges", stack.getMaxDamage() - stack.getItemDamage()));
 	}
 }

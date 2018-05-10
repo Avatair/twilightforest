@@ -6,14 +6,14 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import twilightforest.TwilightForestMod;
-import twilightforest.client.model.ModelTFIceCrystal;
+import twilightforest.client.model.entity.ModelTFIceCrystal;
 import twilightforest.entity.boss.EntityTFIceCrystal;
 
 public class RenderTFIceCrystal extends RenderLiving<EntityTFIceCrystal> {
 	private static final ResourceLocation textureLoc = new ResourceLocation(TwilightForestMod.MODEL_DIR + "icecrystal.png");
 
 	public RenderTFIceCrystal(RenderManager manager) {
-		super(manager, new ModelTFIceCrystal(), 1.0F);
+		super(manager, new ModelTFIceCrystal(), 0.25F);
 	}
 
 	@Override

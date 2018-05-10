@@ -1,8 +1,6 @@
 package twilightforest.entity.boss;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -18,9 +16,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.BossInfo;
 import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.World;
@@ -30,7 +26,7 @@ import twilightforest.TFTreasure;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFTowerDevice;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.TowerDeviceVariant;
+import twilightforest.enums.TowerDeviceVariant;
 import twilightforest.client.particle.TFParticleType;
 import twilightforest.entity.EntityTFMiniGhast;
 import twilightforest.entity.EntityTFTowerGhast;
@@ -54,7 +50,7 @@ public class EntityTFUrGhast extends EntityTFTowerGhast {
 
 	private float damageUntilNextPhase = 45; // how much damage can we take before we toggle tantrum mode
 	private boolean noTrapMode; // are there no traps nearby?  just float around
-	private final BossInfoServer bossInfo = new BossInfoServer(new TextComponentTranslation("entity." + EntityList.getKey(this) + ".name"), BossInfo.Color.RED, BossInfo.Overlay.PROGRESS);
+	private final BossInfoServer bossInfo = new BossInfoServer(getDisplayName(), BossInfo.Color.RED, BossInfo.Overlay.PROGRESS);
 
 	public EntityTFUrGhast(World par1World) {
 		super(par1World);
@@ -204,20 +200,19 @@ public class EntityTFUrGhast extends EntityTFTowerGhast {
 	}
 
 	@Override
+	public boolean isEntityInvulnerable(DamageSource src) {
+		return src == DamageSource.IN_WALL || super.isEntityInvulnerable(src);
+	}
+
+	@Override
 	public boolean attackEntityFrom(DamageSource source, float damage) {
-		// ignore suffocation
-		if (source == DamageSource.IN_WALL) {
-			return false;
-		}
-
-		boolean attackSuccessful = false;
-
 		// in tantrum mode take only 1/4 damage
 		if (this.isInTantrum()) {
 			damage /= 4;
 		}
 
 		float oldHealth = getHealth();
+		boolean attackSuccessful;
 
 		if ("fireball".equals(source.getDamageType()) && source.getTrueSource() instanceof EntityPlayer) {
 			// 'hide' fireball attacks so that we don't take 1000 damage.
@@ -402,9 +397,6 @@ public class EntityTFUrGhast extends EntityTFTowerGhast {
 		double offsetY = this.getAttackTarget().getEntityBoundingBox().minY + (double) (this.getAttackTarget().height / 2.0F) - (this.posY + (double) (this.height / 2.0F));
 		double offsetZ = this.getAttackTarget().posZ - this.posZ;
 
-		// fireball sound effect
-		this.world.playEvent(1008, new BlockPos(this), 0);
-
 		EntityTFUrGhastFireball entityFireball = new EntityTFUrGhastFireball(this.world, this, offsetX, offsetY, offsetZ);
 		entityFireball.explosionPower = 1;
 		double shotSpawnDistance = 8.5D;
@@ -466,8 +458,8 @@ public class EntityTFUrGhast extends EntityTFTowerGhast {
 	}
 
 	private boolean isTrapAt(BlockPos pos) {
-		IBlockState inactive = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.GHASTTRAP_INACTIVE);
-		IBlockState active = TFBlocks.towerDevice.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.GHASTTRAP_ACTIVE);
+		IBlockState inactive = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.GHASTTRAP_INACTIVE);
+		IBlockState active = TFBlocks.tower_device.getDefaultState().withProperty(BlockTFTowerDevice.VARIANT, TowerDeviceVariant.GHASTTRAP_ACTIVE);
 		return world.isBlockLoaded(pos)
 				&& (world.getBlockState(pos) == inactive || world.getBlockState(pos) == active);
 	}
@@ -584,5 +576,10 @@ public class EntityTFUrGhast extends EntityTFTowerGhast {
 	@Override
 	protected boolean shouldAttack(EntityLivingBase living) {
 		return !this.isInTantrum();
+	}
+
+	@Override
+	public boolean isNonBoss() {
+		return false;
 	}
 }

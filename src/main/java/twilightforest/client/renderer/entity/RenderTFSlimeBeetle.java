@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.util.ResourceLocation;
 import twilightforest.TwilightForestMod;
-import twilightforest.client.model.ModelTFSlimeBeetle;
+import twilightforest.client.model.entity.ModelTFSlimeBeetle;
 import twilightforest.entity.EntityTFSlimeBeetle;
 
 public class RenderTFSlimeBeetle extends RenderLiving<EntityTFSlimeBeetle> {
@@ -15,7 +15,6 @@ public class RenderTFSlimeBeetle extends RenderLiving<EntityTFSlimeBeetle> {
 
 	public RenderTFSlimeBeetle(RenderManager manager, ModelBase par1ModelBase, float shadowSize) {
 		super(manager, par1ModelBase, shadowSize);
-		this.shadowSize = 1.1f;
 		addLayer(new LayerInner());
 	}
 
@@ -24,7 +23,6 @@ public class RenderTFSlimeBeetle extends RenderLiving<EntityTFSlimeBeetle> {
 		return textureLoc;
 	}
 
-	// todo verify
 	class LayerInner implements LayerRenderer<EntityTFSlimeBeetle> {
 		private final ModelBase innerModel = new ModelTFSlimeBeetle(true);
 

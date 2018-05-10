@@ -10,8 +10,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.DeadrockVariant;
-import twilightforest.block.enums.ThornVariant;
+import twilightforest.enums.DeadrockVariant;
+import twilightforest.enums.ThornVariant;
 
 import static java.util.Arrays.stream;
 import static net.minecraft.init.MobEffects.REGENERATION;
@@ -19,7 +19,7 @@ import static net.minecraft.inventory.EntityEquipmentSlot.*;
 import static net.minecraft.item.Item.ToolMaterial.DIAMOND;
 import static twilightforest.item.TFItems.*;
 
-@Mod.EventBusSubscriber()
+@Mod.EventBusSubscriber(modid = TwilightForestMod.ID)
 public class TFRegisterItemEvent {
 
 	@SubscribeEvent
@@ -89,11 +89,11 @@ public class TFRegisterItemEvent {
 		items.register("crumble_horn", (new ItemTFCrumbleHorn()).setUnlocalizedName("crumbleHorn"));
 		items.register("peacock_fan", (new ItemTFPeacockFan()).setUnlocalizedName("peacockFan"));
 		items.register("moonworm_queen", (new ItemTFMoonwormQueen()).setUnlocalizedName("moonwormQueen"));
-		items.register("charm_of_life_1", new ItemTF().setUnlocalizedName("charmOfLife1"));
-		items.register("charm_of_life_2", new ItemTF().setUnlocalizedName("charmOfLife2"));
-		items.register("charm_of_keeping_1", new ItemTF().setUnlocalizedName("charmOfKeeping1"));
-		items.register("charm_of_keeping_2", new ItemTF().setUnlocalizedName("charmOfKeeping2"));
-		items.register("charm_of_keeping_3", new ItemTF().setUnlocalizedName("charmOfKeeping3"));
+		items.register("charm_of_life_1", new ItemCharmBaubleable().setUnlocalizedName("charmOfLife1"));
+		items.register("charm_of_life_2", new ItemCharmBaubleable().setUnlocalizedName("charmOfLife2"));
+		items.register("charm_of_keeping_1", new ItemCharmBaubleable().setUnlocalizedName("charmOfKeeping1"));
+		items.register("charm_of_keeping_2", new ItemCharmBaubleable().setUnlocalizedName("charmOfKeeping2"));
+		items.register("charm_of_keeping_3", new ItemCharmBaubleable().setUnlocalizedName("charmOfKeeping3"));
 		items.register("tower_key", new ItemTFTowerKey().setUnlocalizedName("towerKey"));
 		items.register("borer_essence", new ItemTF().setUnlocalizedName("borerEssence"));
 		items.register("carminite", new ItemTF().makeRare().setUnlocalizedName("carminite"));
@@ -140,67 +140,78 @@ public class TFRegisterItemEvent {
 		String[] thornNames = stream(ThornVariant.values()).map(IStringSerializable::getName).toArray(String[]::new);
 		String[] deadrockNames = stream(DeadrockVariant.values()).map(IStringSerializable::getName).toArray(String[]::new);
 		// register blocks with their pickup values
-		items.registerSubItemBlock(TFBlocks.log);
+		items.registerSubItemBlock(TFBlocks.twilight_log);
 		items.registerSubItemBlock(TFBlocks.root);
-		items.registerSubItemBlock(TFBlocks.leaves);
-		//items.register("twilight_portal", new ItemTF().setUnlocalizedName("TFPortal").setCreativeTab(null));
-		items.registerBlock(TFBlocks.firefly);
-		items.registerBlock(TFBlocks.cicada);
-		items.registerSubItemBlock(TFBlocks.mazestone);
+		items.register(new ItemBlockTFLeaves(TFBlocks.twilight_leaves));
+		items.register(new ItemBlockWearable(TFBlocks.firefly));
+		items.register(new ItemBlockWearable(TFBlocks.cicada));
+		items.registerSubItemBlock(TFBlocks.maze_stone);
 		items.registerSubItemBlock(TFBlocks.hedge);
 		items.registerSubItemBlock(TFBlocks.bossSpawner);
-		items.registerBlock(TFBlocks.fireflyJar);
-		items.register(new ItemBlockTFPlant(TFBlocks.plant));
-		items.registerBlock(TFBlocks.uncraftingTable);
-		items.registerSubItemBlock(TFBlocks.fireJet);
-		items.registerSubItemBlock(TFBlocks.nagastone);
-		items.registerSubItemBlock(TFBlocks.sapling);
-		items.registerBlock(TFBlocks.moonworm);
-		items.registerSubItemBlock(TFBlocks.magicLog);
-		items.registerSubItemBlock(TFBlocks.magicLeaves);
-		items.registerSubItemBlock(TFBlocks.magicLogSpecial);
-		items.registerSubItemBlock(TFBlocks.towerWood);
-		items.registerSubItemBlock(TFBlocks.towerDevice);
-		items.registerSubItemBlock(TFBlocks.towerTranslucent);
-		items.registerSubItemBlock(TFBlocks.shield);
-		items.registerSubItemBlock(TFBlocks.trophyPedestal);
-		items.registerBlock(TFBlocks.auroraBlock);
-		items.registerSubItemBlock(TFBlocks.underBrick);
+		items.registerBlock(TFBlocks.firefly_jar);
+		items.register(new ItemBlockTFPlant(TFBlocks.twilight_plant));
+		items.registerBlock(TFBlocks.uncrafting_table);
+		items.registerSubItemBlock(TFBlocks.fire_jet);
+		items.registerSubItemBlock(TFBlocks.naga_stone);
+		items.registerSubItemBlock(TFBlocks.twilight_sapling);
+		items.register(new ItemBlockWearable(TFBlocks.moonworm));
+		items.registerSubItemBlock(TFBlocks.magic_log);
+		items.register(new ItemBlockTFLeaves(TFBlocks.magic_leaves));
+		items.registerSubItemBlock(TFBlocks.magic_log_core);
+		items.registerSubItemBlock(TFBlocks.tower_wood);
+		items.registerSubItemBlock(TFBlocks.tower_device);
+		items.registerSubItemBlock(TFBlocks.tower_translucent);
+		items.registerSubItemBlock(TFBlocks.stronghold_shield);
+		items.registerSubItemBlock(TFBlocks.trophy_pedestal);
+		items.registerBlock(TFBlocks.aurora_block);
+		items.registerSubItemBlock(TFBlocks.underbrick);
 		items.register(new ItemMultiTexture(TFBlocks.thorns, TFBlocks.thorns, thornNames));
-		items.registerBlock(TFBlocks.burntThorns);
-		items.registerBlock(TFBlocks.thornRose);
-		items.registerSubItemBlock(TFBlocks.leaves3);
+		items.registerBlock(TFBlocks.burnt_thorns);
+		items.registerBlock(TFBlocks.thorn_rose);
+		items.register(new ItemBlockTFLeaves(TFBlocks.twilight_leaves_3));
 		items.register(new ItemMultiTexture(TFBlocks.deadrock, TFBlocks.deadrock, deadrockNames));
-		items.registerBlock(TFBlocks.darkleaves);
-		items.registerBlock(TFBlocks.auroraPillar);
-		items.register(new ItemSlab(TFBlocks.auroraSlab, TFBlocks.auroraSlab, TFBlocks.auroraDoubleSlab));
-		items.registerBlock(TFBlocks.trollSteinn);
-		items.registerBlock(TFBlocks.wispyCloud);
-		items.registerBlock(TFBlocks.fluffyCloud);
-		items.registerBlock(TFBlocks.giantCobble);
-		items.registerBlock(TFBlocks.giantLog);
-		items.registerBlock(TFBlocks.giantLeaves);
-		items.registerBlock(TFBlocks.giantObsidian);
-		items.registerBlock(TFBlocks.uberousSoil);
-		items.registerBlock(TFBlocks.hugeStalk);
-		items.registerBlock(TFBlocks.hugeGloomBlock);
-		items.registerBlock(TFBlocks.trollVidr);
-		items.registerBlock(TFBlocks.unripeTrollBer);
-		items.registerBlock(TFBlocks.trollBer);
-		items.registerBlock(TFBlocks.knightmetalStorage);
-		items.register(new ItemBlockTFHugeLilyPad(TFBlocks.hugeLilyPad));
-		items.register(new ItemBlockTFHugeWaterLily(TFBlocks.hugeWaterLily));
+		items.registerBlock(TFBlocks.dark_leaves);
+		items.registerBlock(TFBlocks.aurora_pillar);
+		items.register(new ItemSlab(TFBlocks.aurora_slab, TFBlocks.aurora_slab, TFBlocks.double_aurora_slab));
+		items.registerBlock(TFBlocks.trollsteinn);
+		items.registerBlock(TFBlocks.wispy_cloud);
+		items.registerBlock(TFBlocks.fluffy_cloud);
+		items.register(new ItemTFGiantBlock(TFBlocks.giant_cobblestone));
+		items.register(new ItemTFGiantBlock(TFBlocks.giant_log));
+		items.register(new ItemTFGiantBlock(TFBlocks.giant_leaves));
+		items.register(new ItemTFGiantBlock(TFBlocks.giant_obsidian));
+		items.registerBlock(TFBlocks.uberous_soil);
+		items.registerBlock(TFBlocks.huge_stalk);
+		items.registerBlock(TFBlocks.huge_mushgloom);
+		items.registerBlock(TFBlocks.trollvidr);
+		items.registerBlock(TFBlocks.unripe_trollber);
+		items.registerBlock(TFBlocks.trollber);
+		items.registerBlock(TFBlocks.knightmetal_block);
+		items.register(new ItemBlockTFHugeLilyPad(TFBlocks.huge_lilypad));
+		items.register(new ItemBlockTFHugeWaterLily(TFBlocks.huge_waterlily));
 		items.registerSubItemBlock(TFBlocks.slider);
-		items.registerSubItemBlock(TFBlocks.castleBlock);
-		items.registerSubItemBlock(TFBlocks.castlePillar);
-		items.registerSubItemBlock(TFBlocks.castleMagic);
-		items.registerSubItemBlock(TFBlocks.forceField);
-		items.registerBlock(TFBlocks.cinderFurnace);
-		items.registerSubItemBlock(TFBlocks.cinderLog);
-		items.registerSubItemBlock(TFBlocks.castleDoor);
-		items.registerSubItemBlock(TFBlocks.castleDoorVanished);
-		items.registerSubItemBlock(TFBlocks.miniature_structure);
-
+		items.registerSubItemBlock(TFBlocks.castle_brick);
+		items.registerSubItemBlock(TFBlocks.castle_pillar);
+		items.registerSubItemBlock(TFBlocks.castle_stairs);
+		items.registerSubItemBlock(TFBlocks.castle_rune_brick);
+		items.registerSubItemBlock(TFBlocks.force_field);
+		items.registerBlock(TFBlocks.cinder_furnace);
+		items.registerSubItemBlock(TFBlocks.cinder_log);
+		items.registerSubItemBlock(TFBlocks.castle_door);
+		items.registerSubItemBlock(TFBlocks.castle_door_vanished);
+		items.register(new ItemTFMiniatureStructure(TFBlocks.miniature_structure));
+		items.register(new ItemTFCompressed(TFBlocks.block_storage));
+		//items.registerBlock(TFBlocks.lapis_block);
+		items.registerBlock(TFBlocks.spiral_bricks);
+		items.registerBlock(TFBlocks.etched_nagastone);
+		items.registerBlock(TFBlocks.nagastone_pillar);
+		items.registerSubItemBlock(TFBlocks.nagastone_stairs);
+		items.registerBlock(TFBlocks.etched_nagastone_mossy);
+		items.registerBlock(TFBlocks.nagastone_pillar_mossy);
+		items.registerSubItemBlock(TFBlocks.nagastone_stairs_mossy);
+		items.registerBlock(TFBlocks.etched_nagastone_weathered);
+		items.registerBlock(TFBlocks.nagastone_pillar_weathered);
+		items.registerSubItemBlock(TFBlocks.nagastone_stairs_weathered);
 	}
 
 	private static class ItemRegistryHelper {
@@ -221,7 +232,11 @@ public class TFRegisterItemEvent {
 		}
 
 		private void registerSubItemBlock(Block block) {
-			ItemBlockTFMeta metaItemBlock = new ItemBlockTFMeta(block);
+			registerSubItemBlock(block, true);
+		}
+
+		private void registerSubItemBlock(Block block, boolean shouldAppendNumber) {
+			ItemBlockTFMeta metaItemBlock = new ItemBlockTFMeta(block).setAppend(shouldAppendNumber);
 			register(metaItemBlock);
 		}
 

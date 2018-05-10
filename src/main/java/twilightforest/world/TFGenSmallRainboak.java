@@ -4,7 +4,7 @@ package twilightforest.world;
 import net.minecraft.block.BlockLeaves;
 import twilightforest.block.BlockTFLeaves;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.LeavesVariant;
+import twilightforest.enums.LeavesVariant;
 
 public class TFGenSmallRainboak extends TFGenSmallTwilightOak {
 
@@ -15,7 +15,7 @@ public class TFGenSmallRainboak extends TFGenSmallTwilightOak {
 
 	public TFGenSmallRainboak(boolean notify) {
 		super(notify);
-		this.leafState = TFBlocks.leaves.getDefaultState().withProperty(BlockTFLeaves.VARIANT, LeavesVariant.RAINBOAK).withProperty(BlockLeaves.CHECK_DECAY, false);
+		this.leafState = TFBlocks.twilight_leaves.getDefaultState().withProperty(BlockTFLeaves.VARIANT, LeavesVariant.RAINBOAK).withProperty(BlockLeaves.CHECK_DECAY, false);
 	}
 
 }

@@ -9,6 +9,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.TFTreasure;
 import twilightforest.block.BlockTFLog;
 import twilightforest.block.TFBlocks;
@@ -38,8 +39,8 @@ public class ComponentTFHollowTreeLeafDungeon extends StructureTFTreeComponent
 	 * @param z
 	 * @param radius
 	 */
-	protected ComponentTFHollowTreeLeafDungeon(int index, int x, int y, int z, int radius) {
-		super(index);
+	protected ComponentTFHollowTreeLeafDungeon(TFFeature feature, int index, int x, int y, int z, int radius) {
+		super(feature, index);
 		this.setCoordBaseMode(EnumFacing.SOUTH);
 		boundingBox = new StructureBoundingBox(x - radius, y - radius, z - radius, x + radius, y + radius, z + radius);
 		this.radius = radius;
@@ -50,10 +51,10 @@ public class ComponentTFHollowTreeLeafDungeon extends StructureTFTreeComponent
 	 * Save to NBT
 	 */
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setInteger("leafRadius", this.radius);
+		tagCompound.setInteger("leafRadius", this.radius);
 
 	}
 
@@ -61,10 +62,10 @@ public class ComponentTFHollowTreeLeafDungeon extends StructureTFTreeComponent
 	 * Load from NBT
 	 */
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
 
-		this.radius = par1NBTTagCompound.getInteger("leafRadius");
+		this.radius = tagCompound.getInteger("leafRadius");
 	}
 
 	@Override
@@ -76,7 +77,7 @@ public class ComponentTFHollowTreeLeafDungeon extends StructureTFTreeComponent
 	public boolean addComponentParts(World world, Random random, StructureBoundingBox sbb, boolean drawLeaves) {
 		if (!drawLeaves) {
 			// wood
-			drawHollowBlob(world, sbb, radius, radius, radius, 3, 2, TFBlocks.log.getDefaultState().withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE), false);
+			drawHollowBlob(world, sbb, radius, radius, radius, 3, 2, TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.LOG_AXIS, BlockLog.EnumAxis.NONE), false);
 			// then treasure chest
 			// which direction is this chest in?
 			this.placeTreasureAtCurrentPosition(world, random, radius + 2, radius - 1, radius, TFTreasure.tree_cache, sbb);
@@ -85,7 +86,7 @@ public class ComponentTFHollowTreeLeafDungeon extends StructureTFTreeComponent
 			setSpawner(world, radius, radius, radius, sbb, EntityList.getKey(EntityTFSwarmSpider.class));
 		} else {
 			// hollow sphere of leaves on the outside
-			drawHollowBlob(world, sbb, radius, radius, radius, 4, 2, TFBlocks.leaves.getDefaultState().withProperty(BlockLeaves.CHECK_DECAY, false), true);
+			drawHollowBlob(world, sbb, radius, radius, radius, 4, 2, TFBlocks.twilight_leaves.getDefaultState().withProperty(BlockLeaves.CHECK_DECAY, false), true);
 		}
 		return true;
 	}

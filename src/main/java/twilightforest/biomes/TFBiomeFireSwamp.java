@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twilightforest.TFFeature;
 import twilightforest.TwilightForestMod;
-import twilightforest.block.enums.FireJetVariant;
+import twilightforest.enums.FireJetVariant;
 import twilightforest.world.TFGenFireJet;
 import twilightforest.world.TFGenVines;
 import twilightforest.world.TFWorld;
@@ -98,13 +98,13 @@ public class TFBiomeFireSwamp extends TFBiomeBase {
 	}
 
 	@Override
-	protected ResourceLocation getRequiredAchievement() {
-		return new ResourceLocation(TwilightForestMod.ID, "progress_labyrinth");
+	protected ResourceLocation[] getRequiredAdvancements() {
+		return new ResourceLocation[]{ new ResourceLocation(TwilightForestMod.ID, "progress_labyrinth") };
 	}
 
 	@Override
 	public void enforceProgession(EntityPlayer player, World world) {
-		if (!world.isRemote && world.getWorldTime() % 60 == 0) {
+		if (!world.isRemote && player.ticksExisted % 60 == 0) {
 			player.setFire(8);
 		}
 		// hint monster?

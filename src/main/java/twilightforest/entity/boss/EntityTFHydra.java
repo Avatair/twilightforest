@@ -2,12 +2,11 @@ package twilightforest.entity.boss;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityMultiPart;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.MultiPartEntityPart;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,7 +23,6 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.BossInfo;
 import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.EnumDifficulty;
@@ -32,6 +30,9 @@ import net.minecraft.world.World;
 import twilightforest.TFFeature;
 import twilightforest.TFSounds;
 import twilightforest.TwilightForestMod;
+import twilightforest.block.BlockTFBossSpawner;
+import twilightforest.block.TFBlocks;
+import twilightforest.enums.BossVariant;
 import twilightforest.util.WorldUtil;
 import twilightforest.world.ChunkGeneratorTwilightForest;
 import twilightforest.world.TFWorld;
@@ -54,53 +55,42 @@ public class EntityTFHydra extends EntityLiving implements IEntityMultiPart, IMo
 	private static final int SECONDARY_FLAME_CHANCE = 10;
 	private static final int SECONDARY_MORTAR_CHANCE = 16;
 
-	private static final DataParameter<Byte> DATA_SPAWNHEADS = EntityDataManager.createKey(EntityTFHydra.class, DataSerializers.BYTE);
-	private static final DataParameter<Integer> DATA_BOSSHEALTH = EntityDataManager.createKey(EntityTFHydra.class, DataSerializers.VARINT);
+	private static final DataParameter<Boolean> DATA_SPAWNHEADS = EntityDataManager.createKey(EntityTFHydra.class, DataSerializers.BOOLEAN);
 
-	private Entity partArray[];
-	public MultiPartEntityPart body;
+	private final Entity partArray[];
 
-	public HydraHeadContainer[] hc;
-	public int numHeads = 7;
+	public final int numHeads = 7;
+	public final HydraHeadContainer[] hc = new HydraHeadContainer[numHeads];
 
-	private MultiPartEntityPart leftLeg;
-	private MultiPartEntityPart rightLeg;
-	private MultiPartEntityPart tail;
-	private final BossInfoServer bossInfo = new BossInfoServer(new TextComponentTranslation("entity." + EntityList.getKey(this) + ".name"), BossInfo.Color.BLUE, BossInfo.Overlay.PROGRESS);
+	public final MultiPartEntityPart body = new MultiPartEntityPart(this, "body", 4F, 4F);
+	private final MultiPartEntityPart leftLeg = new MultiPartEntityPart(this, "leg", 2F, 3F);
+	private final MultiPartEntityPart rightLeg = new MultiPartEntityPart(this, "leg", 2F, 3F);
+	private final MultiPartEntityPart tail = new MultiPartEntityPart(this, "tail", 4F, 4F);
+	private final BossInfoServer bossInfo = new BossInfoServer(getDisplayName(), BossInfo.Color.BLUE, BossInfo.Overlay.PROGRESS);
 
-	public int ticksSinceDamaged = 0;
+	private int ticksSinceDamaged = 0;
 
 	public EntityTFHydra(World world) {
 		super(world);
 
-		partArray = (new Entity[]
-				{
-						body = new MultiPartEntityPart(this, "body", 4F, 4F), leftLeg = new MultiPartEntityPart(this, "leg", 2F, 3F), rightLeg = new MultiPartEntityPart(this, "leg", 2F, 3F), tail = new MultiPartEntityPart(this, "tail", 4F, 4F)
-				});
+		List<Entity> parts = new ArrayList<>();
+		parts.add(body);
+		parts.add(leftLeg);
+		parts.add(rightLeg);
+		parts.add(tail);
 
-		// head array
-		this.hc = new HydraHeadContainer[this.numHeads];
 		for (int i = 0; i < numHeads; i++) {
 			hc[i] = new HydraHeadContainer(this, i, i < 3);
+			Collections.addAll(parts, hc[i].getNeckArray());
 		}
 
-		// re-do partArray
-		ArrayList<Entity> partList = new ArrayList<Entity>();
-		Collections.addAll(partList, partArray);
+		partArray = parts.toArray(new Entity[0]);
 
-		for (int i = 0; i < numHeads; i++) {
-			Collections.addAll(partList, hc[i].getNeckArray());
-		}
-
-		partArray = partList.toArray(partArray);
-
-		setSize(16F, 12F);
 		this.ignoreFrustumCheck = true;
-
-		isImmuneToFire = true;
-
+		this.isImmuneToFire = true;
 		this.experienceValue = 511;
 
+		setSize(16F, 12F);
 		setSpawnHeads(true);
 	}
 
@@ -127,6 +117,51 @@ public class EntityTFHydra extends EntityLiving implements IEntityMultiPart, IMo
 	public void removeTrackingPlayer(EntityPlayerMP player) {
 		super.removeTrackingPlayer(player);
 		this.bossInfo.removePlayer(player);
+	}
+
+	private void despawnIfPeaceful() {
+		if (!world.isRemote && world.getDifficulty() == EnumDifficulty.PEACEFUL) {
+			world.setBlockState(getPosition().add(0, 2, 0), TFBlocks.bossSpawner.getDefaultState().withProperty(BlockTFBossSpawner.VARIANT, BossVariant.HYDRA));
+			setDead();
+			for (HydraHeadContainer container : hc) {
+				if (container.headEntity != null)
+					container.headEntity.setDead();
+			}
+		}
+	}
+
+	// [Vanilla Copy] from EntityLivingBase. Hydra doesn't like the one from EntityLiving for whatever reason
+	@Override
+	protected float updateDistance(float p_110146_1_, float p_110146_2_)
+	{
+		float f = MathHelper.wrapDegrees(p_110146_1_ - this.renderYawOffset);
+		this.renderYawOffset += f * 0.3F;
+		float f1 = MathHelper.wrapDegrees(this.rotationYaw - this.renderYawOffset);
+		boolean flag = f1 < -90.0F || f1 >= 90.0F;
+
+		if (f1 < -75.0F)
+		{
+			f1 = -75.0F;
+		}
+
+		if (f1 >= 75.0F)
+		{
+			f1 = 75.0F;
+		}
+
+		this.renderYawOffset = this.rotationYaw - f1;
+
+		if (f1 * f1 > 2500.0F)
+		{
+			this.renderYawOffset += f1 * 0.2F;
+		}
+
+		if (flag)
+		{
+			p_110146_2_ *= -1.0F;
+		}
+
+		return p_110146_2_;
 	}
 
 	@Override
@@ -216,26 +251,21 @@ public class EntityTFHydra extends EntityLiving implements IEntityMultiPart, IMo
 
 			bossInfo.setPercent(getHealth() / getMaxHealth());
 		}
+		despawnIfPeaceful();
 	}
 
 	@Override
 	protected void entityInit() {
 		super.entityInit();
-		dataManager.register(DATA_SPAWNHEADS, (byte) 0);
-		dataManager.register(DATA_BOSSHEALTH, MAX_HEALTH);
+		dataManager.register(DATA_SPAWNHEADS, false);
 	}
 
-
-	public boolean shouldSpawnHeads() {
-		return dataManager.get(DATA_SPAWNHEADS) != 0;
+	private boolean shouldSpawnHeads() {
+		return dataManager.get(DATA_SPAWNHEADS);
 	}
 
-	public void setSpawnHeads(boolean flag) {
-		if (flag) {
-			dataManager.set(DATA_SPAWNHEADS, (byte) 127);
-		} else {
-			dataManager.set(DATA_SPAWNHEADS, (byte) 0);
-		}
+	private void setSpawnHeads(boolean flag) {
+		dataManager.set(DATA_SPAWNHEADS, flag);
 	}
 
 	@Override
@@ -573,11 +603,13 @@ public class EntityTFHydra extends EntityLiving implements IEntityMultiPart, IMo
 	}
 
 	private void destroyBlocksInAABB(AxisAlignedBB box) {
-		for (BlockPos pos : WorldUtil.getAllInBB(box)) {
-			IBlockState state = world.getBlockState(pos);
-			if (!state.getBlock().isAir(state, world, pos) && state.getBlock() != Blocks.OBSIDIAN
-					&& state.getBlock() != Blocks.END_STONE && state.getBlock() != Blocks.BEDROCK) {
-				world.destroyBlock(pos, false);
+		if (world.getGameRules().getBoolean("mobGriefing")) {
+			for (BlockPos pos : WorldUtil.getAllInBB(box)) {
+				IBlockState state = world.getBlockState(pos);
+				if (!state.getBlock().isAir(state, world, pos) && state.getBlock() != Blocks.OBSIDIAN
+						&& state.getBlock() != Blocks.END_STONE && state.getBlock() != Blocks.BEDROCK) {
+					world.destroyBlock(pos, false);
+				}
 			}
 		}
 	}
@@ -642,8 +674,8 @@ public class EntityTFHydra extends EntityLiving implements IEntityMultiPart, IMo
 	}
 
 	@Override
-	public boolean attackEntityFrom(DamageSource par1DamageSource, float par2) {
-		return false;
+	public boolean attackEntityFrom(DamageSource src, float damage) {
+		return src == DamageSource.OUT_OF_WORLD && super.attackEntityFrom(src, damage);
 	}
 
 	/**
@@ -785,6 +817,11 @@ public class EntityTFHydra extends EntityLiving implements IEntityMultiPart, IMo
 	@Override
 	public World getWorld() {
 		return this.world;
+	}
+
+	@Override
+	public boolean isNonBoss() {
+		return false;
 	}
 
 }

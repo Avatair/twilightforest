@@ -10,11 +10,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFRoots;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.RootVariant;
+import twilightforest.enums.RootVariant;
 
 import javax.annotation.Nonnull;
 import java.util.IdentityHashMap;
@@ -84,20 +85,20 @@ public class ItemTFOreMeter extends ItemTF {
 
 		total = countStone + countDirt + countGravel + countCoal + countIron + countGold + countDiamond + countLapis + countRedstone + countRoots + countOreRoots;
 
-		player.sendMessage(new TextComponentString("Ore Meter!"));
-		player.sendMessage(new TextComponentString("Metering chunks in radius " + radius + " around chunk [" + chunkX + ", " + chunkZ + "]"));
-		player.sendMessage(new TextComponentString("Coal - " + countCoal + " " + percent(countCoal, total)));
-		player.sendMessage(new TextComponentString("Iron - " + countIron + " " + percent(countIron, total)));
-		player.sendMessage(new TextComponentString("Gold - " + countGold + " " + percent(countGold, total)));
-		player.sendMessage(new TextComponentString("Diamond - " + countDiamond + " " + percent(countDiamond, total) + ", exposed - " + countExposedDiamond));
-		player.sendMessage(new TextComponentString("Lapis - " + countLapis + " " + percent(countLapis, total)));
-		player.sendMessage(new TextComponentString("Redstone - " + countRedstone + " " + percent(countRedstone, total)));
-		player.sendMessage(new TextComponentString("Roots - " + countRoots + " " + percent(countRoots, total)));
-		player.sendMessage(new TextComponentString("Ore Roots - " + countOreRoots + " " + percent(countOreRoots, total)));
+		player.sendMessage(new TextComponentTranslation(getUnlocalizedName() + ".name").appendText("!"));
+		player.sendMessage(new TextComponentTranslation(TwilightForestMod.ID + ".ore_meter.range", radius, chunkX, chunkZ));
+		player.sendMessage(new TextComponentTranslation(Blocks.COAL_ORE.getUnlocalizedName() + ".name").appendText(" - " + countCoal + " " + percent(countCoal, total)));
+		player.sendMessage(new TextComponentTranslation(Blocks.IRON_ORE.getUnlocalizedName() + ".name").appendText(" - " + countIron + " " + percent(countIron, total)));
+		player.sendMessage(new TextComponentTranslation(Blocks.GOLD_ORE.getUnlocalizedName() + ".name").appendText(" - " + countGold + " " + percent(countGold, total)));
+		player.sendMessage(new TextComponentTranslation(Blocks.DIAMOND_ORE.getUnlocalizedName() + ".name").appendText(" - " + countDiamond + " " + percent(countDiamond, total) + ", ").appendSibling(new TextComponentTranslation(TwilightForestMod.ID + ".ore_meter.exposed", countExposedDiamond)));
+		player.sendMessage(new TextComponentTranslation(Blocks.LAPIS_ORE.getUnlocalizedName() + ".name").appendText(" - " + countLapis + " " + percent(countLapis, total)));
+		player.sendMessage(new TextComponentTranslation(Blocks.REDSTONE_ORE.getUnlocalizedName() + ".name").appendText(" - " + countRedstone + " " + percent(countRedstone, total)));
+		player.sendMessage(new TextComponentTranslation(new ItemStack(TFBlocks.root).getUnlocalizedName() + ".name").appendText(" - " + countRoots + " " + percent(countRoots, total)));
+		player.sendMessage(new TextComponentTranslation(new ItemStack(TFBlocks.root, 1, 1).getUnlocalizedName() + ".name").appendText(" - " + countOreRoots + " " + percent(countOreRoots, total)));
 	}
 
-	private float percent(int count, int total) {
-		return (float) count / (float) total * 100F;
+	private String percent(int count, int total) {
+		return Float.toString((float) count / (float) total * 100F) + "%";
 	}
 
 	private Map<IBlockState, ScanResult> countBlocksInChunk(World world, int cx, int cz) {
@@ -111,7 +112,7 @@ public class ItemTFOreMeter extends ItemTF {
 					res.count++;
 
 					for (EnumFacing e : EnumFacing.VALUES) {
-						if (world.isAirBlock(pos.move(e))) {
+						if (world.isAirBlock(pos.setPos(x, y, z).move(e))) {
 							res.exposedCount++;
 							break;
 						}

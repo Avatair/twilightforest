@@ -12,8 +12,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.TFTreasure;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.structures.lichtower.ComponentTFTowerWing;
 import twilightforest.util.RotationUtil;
 
@@ -32,35 +33,35 @@ public class ComponentTFIceTowerWing extends ComponentTFTowerWing {
 		super();
 	}
 
-	protected ComponentTFIceTowerWing(int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
-		super(i, x, y, z, pSize, pHeight, direction);
+	protected ComponentTFIceTowerWing(TFFeature feature, int i, int x, int y, int z, int pSize, int pHeight, EnumFacing direction) {
+		super(feature, i, x, y, z, pSize, pHeight, direction);
 	}
 
 	/**
 	 * Save to NBT
 	 */
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setBoolean("hasBase", this.hasBase);
-		par1NBTTagCompound.setInteger("treasureFloor", this.treasureFloor);
+		tagCompound.setBoolean("hasBase", this.hasBase);
+		tagCompound.setInteger("treasureFloor", this.treasureFloor);
 	}
 
 	/**
 	 * Load from NBT
 	 */
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.hasBase = par1NBTTagCompound.getBoolean("hasBase");
-		this.treasureFloor = par1NBTTagCompound.getInteger("treasureFloor");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.hasBase = tagCompound.getBoolean("hasBase");
+		this.treasureFloor = tagCompound.getInteger("treasureFloor");
 	}
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 
 		// we should have a door where we started
@@ -143,7 +144,7 @@ public class ComponentTFIceTowerWing extends ComponentTFTowerWing {
 			return false;
 		}
 
-		ComponentTFIceTowerWing wing = new ComponentTFIceTowerWing(index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
+		ComponentTFIceTowerWing wing = new ComponentTFIceTowerWing(getFeatureType(), index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, wing.getBoundingBox());
 		if (intersect == null || intersect == this) {
@@ -165,7 +166,7 @@ public class ComponentTFIceTowerWing extends ComponentTFTowerWing {
 		EnumFacing direction = getStructureRelativeRotation(rotation);
 		int[] dx = offsetTowerCoords(x, y, z, wingSize, direction);
 
-		ComponentTFIceTowerWing wing = new ComponentTFIceTowerBossWing(index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
+		ComponentTFIceTowerWing wing = new ComponentTFIceTowerBossWing(getFeatureType(), index, dx[0], dx[1], dx[2], wingSize, wingHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, wing.getBoundingBox());
 		if (intersect == null || intersect == this) {
@@ -718,7 +719,7 @@ public class ComponentTFIceTowerWing extends ComponentTFTowerWing {
 	@Override
 	public void makeARoof(StructureComponent parent, List<StructureComponent> list, Random rand) {
 		int index = this.getComponentType();
-		tryToFitRoof(list, rand, new ComponentTFIceTowerRoof(index + 1, this));
+		tryToFitRoof(list, rand, new ComponentTFIceTowerRoof(getFeatureType(), index + 1, this));
 	}
 
 	/**
@@ -728,7 +729,7 @@ public class ComponentTFIceTowerWing extends ComponentTFTowerWing {
 	public void makeABeard(StructureComponent parent, List<StructureComponent> list, Random rand) {
 		int index = this.getComponentType();
 		ComponentTFIceTowerBeard beard;
-		beard = new ComponentTFIceTowerBeard(index + 1, this);
+		beard = new ComponentTFIceTowerBeard(getFeatureType(), index + 1, this);
 		list.add(beard);
 		beard.buildComponent(this, list, rand);
 	}

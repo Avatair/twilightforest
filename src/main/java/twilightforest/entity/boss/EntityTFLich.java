@@ -5,6 +5,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
+import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -23,7 +24,6 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.BossInfo;
 import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.World;
@@ -54,7 +54,7 @@ public class EntityTFLich extends EntityMob {
 
 	private EntityTFLich masterLich;
 	private int attackCooldown;
-	private final BossInfoServer bossInfo = new BossInfoServer(new TextComponentTranslation("entity." + EntityList.getKey(this) + ".name"), BossInfo.Color.PURPLE, BossInfo.Overlay.PROGRESS);
+	private final BossInfoServer bossInfo = new BossInfoServer(getDisplayName(), BossInfo.Color.YELLOW, BossInfo.Overlay.NOTCHED_6);
 
 	public EntityTFLich(World world) {
 		super(world);
@@ -93,6 +93,7 @@ public class EntityTFLich extends EntityMob {
 
 	@Override
 	protected void initEntityAI() {
+		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAITFLichShadows(this));
 		this.tasks.addTask(2, new EntityAITFLichMinions(this));
 		this.tasks.addTask(3, new EntityAIAttackMelee(this, 1.0D, true) {
@@ -150,16 +151,6 @@ public class EntityTFLich extends EntityMob {
 		return false;
 	}
 
-	@Override
-	public boolean isInLava() {
-		return false;
-	}
-
-	@Override
-	public boolean isInWater() {
-		return false;
-	}
-
 	/**
 	 * What phase of the fight are we on?
 	 * <p>
@@ -212,8 +203,24 @@ public class EntityTFLich extends EntityMob {
 			world.spawnParticle(EnumParticleTypes.SPELL_MOB, dx + (rand.nextGaussian() * 0.025), dy + (rand.nextGaussian() * 0.025), dz + (rand.nextGaussian() * 0.025), red, grn, blu);
 		}
 
+		if (this.getPhase() == 3)
+			world.spawnParticle(EnumParticleTypes.VILLAGER_ANGRY,
+				this.posX + (double) (this.rand.nextFloat() * this.width * 2.0F) - (double) this.width,
+				this.posY + 1.0D + (double) (this.rand.nextFloat() * this.height),
+				this.posZ + (double) (this.rand.nextFloat() * this.width * 2.0F) - (double) this.width,
+				this.rand.nextGaussian() * 0.02D, this.rand.nextGaussian() * 0.02D, this.rand.nextGaussian() * 0.02D);
+
 		if (!world.isRemote) {
-			bossInfo.setPercent(getHealth() / getMaxHealth());
+			if (this.getPhase() == 1) {
+				bossInfo.setPercent((float) (getShieldStrength() + 1) / (float) (INITIAL_SHIELD_STRENGTH + 1));
+			} else {
+				bossInfo.setOverlay(BossInfo.Overlay.PROGRESS);
+				bossInfo.setPercent(getHealth() / getMaxHealth());
+				if (this.getPhase() == 2)
+					bossInfo.setColor(BossInfo.Color.PURPLE);
+				else
+					bossInfo.setColor(BossInfo.Color.RED);
+			}
 		}
 
 		super.onLivingUpdate();
@@ -226,7 +233,7 @@ public class EntityTFLich extends EntityMob {
 			teleportToSightOfEntity(getAttackTarget());
 		}
 
-		if (isShadowClone()) {
+		if (isShadowClone() && src != DamageSource.OUT_OF_WORLD) {
 			playSound(SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, 1.0F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			return false;
 		}
@@ -237,7 +244,7 @@ public class EntityTFLich extends EntityMob {
 		}
 
 		// if our shield is up, ignore any damage that can be blocked.
-		if (getShieldStrength() > 0) {
+		if (src != DamageSource.OUT_OF_WORLD && getShieldStrength() > 0) {
 			if (src.isMagicDamage() && damage > 2) {
 				// reduce shield for magic damage greater than 1 heart
 				if (getShieldStrength() > 0) {
@@ -592,4 +599,8 @@ public class EntityTFLich extends EntityMob {
 		return EnumCreatureAttribute.UNDEAD;
 	}
 
+	@Override
+	public boolean isNonBoss() {
+		return false;
+	}
 }

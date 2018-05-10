@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.TFTreasure;
 
 import java.util.List;
@@ -23,25 +24,25 @@ public class ComponentTFStrongholdSmallStairs extends StructureTFStrongholdCompo
 	public ComponentTFStrongholdSmallStairs() {
 	}
 
-	public ComponentTFStrongholdSmallStairs(int i, EnumFacing facing, int x, int y, int z) {
-		super(i, facing, x, y, z);
+	public ComponentTFStrongholdSmallStairs(TFFeature feature, int i, EnumFacing facing, int x, int y, int z) {
+		super(feature, i, facing, x, y, z);
 	}
 
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setBoolean("enterBottom", this.enterBottom);
-		par1NBTTagCompound.setBoolean("hasTreasure", this.hasTreasure);
-		par1NBTTagCompound.setBoolean("chestTrapped", this.chestTrapped);
+		tagCompound.setBoolean("enterBottom", this.enterBottom);
+		tagCompound.setBoolean("hasTreasure", this.hasTreasure);
+		tagCompound.setBoolean("chestTrapped", this.chestTrapped);
 	}
 
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.enterBottom = par1NBTTagCompound.getBoolean("enterBottom");
-		this.hasTreasure = par1NBTTagCompound.getBoolean("hasTreasure");
-		this.chestTrapped = par1NBTTagCompound.getBoolean("chestTrapped");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.enterBottom = tagCompound.getBoolean("enterBottom");
+		this.hasTreasure = tagCompound.getBoolean("hasTreasure");
+		this.chestTrapped = tagCompound.getBoolean("chestTrapped");
 	}
 
 	@Override

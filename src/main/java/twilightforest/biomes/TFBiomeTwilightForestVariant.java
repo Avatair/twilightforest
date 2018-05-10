@@ -1,21 +1,17 @@
 package twilightforest.biomes;
 
 import net.minecraft.block.BlockDoublePlant;
-import net.minecraft.block.BlockOldLeaf;
-import net.minecraft.block.BlockOldLog;
-import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockTallGrass;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.WorldGenAbstractTree;
-import net.minecraft.world.gen.feature.WorldGenBigTree;
-import net.minecraft.world.gen.feature.WorldGenShrub;
-import net.minecraft.world.gen.feature.WorldGenTallGrass;
-import net.minecraft.world.gen.feature.WorldGenerator;
+import net.minecraft.world.gen.feature.*;
+import twilightforest.block.BlockTFLeaves;
+import twilightforest.block.BlockTFLog;
 import twilightforest.block.BlockTFPlant;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.PlantVariant;
+import twilightforest.enums.LeavesVariant;
+import twilightforest.enums.PlantVariant;
+import twilightforest.enums.WoodVariant;
 import twilightforest.world.TFGenTallGrass;
 
 import java.util.Random;
@@ -35,8 +31,8 @@ public class TFBiomeTwilightForestVariant extends TFBiomeBase {
 	public WorldGenAbstractTree getRandomTreeFeature(Random random) {
 		if (random.nextInt(5) == 0) {
 			new WorldGenShrub(
-					Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, BlockPlanks.EnumType.JUNGLE),
-					Blocks.LEAVES.getDefaultState().withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.OAK));
+					TFBlocks.twilight_log.getDefaultState().withProperty(BlockTFLog.VARIANT, WoodVariant.OAK),
+					TFBlocks.twilight_leaves.getDefaultState().withProperty(BlockTFLeaves.VARIANT, LeavesVariant.OAK));
 		} else if (random.nextInt(10) == 0) {
 			return new WorldGenBigTree(false);
 		}
@@ -49,7 +45,7 @@ public class TFBiomeTwilightForestVariant extends TFBiomeBase {
 		if (par1Random.nextInt(4) != 0) {
 			return new WorldGenTallGrass(BlockTallGrass.EnumType.FERN);
 		} else if (par1Random.nextBoolean()) {
-			return new TFGenTallGrass(TFBlocks.plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.MAYAPPLE));
+			return new TFGenTallGrass(TFBlocks.twilight_plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.MAYAPPLE));
 		} else {
 			return new WorldGenTallGrass(BlockTallGrass.EnumType.GRASS);
 		}

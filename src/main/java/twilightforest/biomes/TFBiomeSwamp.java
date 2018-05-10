@@ -26,7 +26,7 @@ import twilightforest.TFFeature;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFPlant;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.PlantVariant;
+import twilightforest.enums.PlantVariant;
 import twilightforest.entity.EntityTFMosquitoSwarm;
 import twilightforest.world.TFGenHugeLilyPad;
 import twilightforest.world.TFGenTallGrass;
@@ -81,7 +81,7 @@ public class TFBiomeSwamp extends TFBiomeBase {
 		if (par1Random.nextInt(4) == 0) {
 			return new WorldGenTallGrass(BlockTallGrass.EnumType.FERN);
 		} else if (par1Random.nextInt(4) == 0) {
-			return new TFGenTallGrass(TFBlocks.plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.MAYAPPLE));
+			return new TFGenTallGrass(TFBlocks.twilight_plant.getDefaultState().withProperty(BlockTFPlant.VARIANT, PlantVariant.MAYAPPLE));
 		} else {
 			return new WorldGenTallGrass(BlockTallGrass.EnumType.GRASS);
 		}
@@ -137,19 +137,18 @@ public class TFBiomeSwamp extends TFBiomeBase {
 	}
 
 	@Override
-	protected ResourceLocation getRequiredAchievement() {
-		return new ResourceLocation(TwilightForestMod.ID, "progress_lich");
+	protected ResourceLocation[] getRequiredAdvancements() {
+		return new ResourceLocation[]{ new ResourceLocation(TwilightForestMod.ID, "progress_lich") };
 	}
 
 	@Override
 	public void enforceProgession(EntityPlayer player, World world) {
-		if (!world.isRemote && world.getWorldTime() % 60 == 0) {
+		if (!world.isRemote && player.ticksExisted % 60 == 0) {
 			PotionEffect currentHunger = player.getActivePotionEffect(MobEffects.HUNGER);
 
 			int hungerLevel = currentHunger != null ? currentHunger.getAmplifier() + 1 : 1;
 
 			player.addPotionEffect(new PotionEffect(MobEffects.HUNGER, 100, hungerLevel));
-			//((EntityLivingBase)par1Entity).addPotionEffect(new PotionEffect(MobEffects.HUNGER.id, duration * 20, 0));
 
 			// hint monster?
 			if (world.rand.nextInt(4) == 0) {

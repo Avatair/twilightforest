@@ -6,10 +6,11 @@ import net.minecraft.util.Rotation;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFCastleMagic;
 import twilightforest.block.BlockTFForceField;
 import twilightforest.block.TFBlocks;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.util.RotationUtil;
 
 import java.util.List;
@@ -22,29 +23,29 @@ public class ComponentTFFinalCastleBellTower21 extends ComponentTFFinalCastleMaz
 	public ComponentTFFinalCastleBellTower21() {
 	}
 
-	public ComponentTFFinalCastleBellTower21(Random rand, int i, int x, int y, int z, EnumFacing direction) {
-		super(rand, i, x, y, z, FLOORS, 1, BlockTFCastleMagic.VALID_COLORS.get(1), direction);
+	public ComponentTFFinalCastleBellTower21(TFFeature feature, Random rand, int i, int x, int y, int z, EnumFacing direction) {
+		super(feature, rand, i, x, y, z, FLOORS, 1, BlockTFCastleMagic.VALID_COLORS.get(1), direction);
 		this.size = 21;
 		int floors = FLOORS;
 		this.height = floors * 8 + 1;
-		this.boundingBox = StructureTFComponent.getComponentToAddBoundingBox2(x, y, z, -6, -8, -this.size / 2, this.size - 1, this.height, this.size - 1, direction);
+		this.boundingBox = StructureTFComponentOld.getComponentToAddBoundingBox2(x, y, z, -6, -8, -this.size / 2, this.size - 1, this.height, this.size - 1, direction);
 		this.openings.clear();
 		addOpening(0, 9, size / 2, Rotation.CLOCKWISE_180);
 	}
 
 	@Override
 	public void buildComponent(StructureComponent parent, List<StructureComponent> list, Random rand) {
-		if (parent != null && parent instanceof StructureTFComponent) {
-			this.deco = ((StructureTFComponent) parent).deco;
+		if (parent != null && parent instanceof StructureTFComponentOld) {
+			this.deco = ((StructureTFComponentOld) parent).deco;
 		}
 
 		// add foundation
-		ComponentTFFinalCastleBellFoundation21 foundation = new ComponentTFFinalCastleBellFoundation21(rand, 4, this);
+		ComponentTFFinalCastleBellFoundation21 foundation = new ComponentTFFinalCastleBellFoundation21(getFeatureType(), rand, 4, this);
 		list.add(foundation);
 		foundation.buildComponent(this, list, rand);
 
 		// add roof
-		StructureTFComponent roof = new ComponentTFFinalCastleRoof13Crenellated(rand, 4, this);
+		StructureTFComponentOld roof = new ComponentTFFinalCastleRoof13Crenellated(getFeatureType(), rand, 4, this);
 		list.add(roof);
 		roof.buildComponent(this, list, rand);
 	}
@@ -54,7 +55,7 @@ public class ComponentTFFinalCastleBellTower21 extends ComponentTFFinalCastleMaz
 		super.addComponentParts(world, rand, sbb);
 
 		// openings!
-		IBlockState fieldBlock = TFBlocks.forceField
+		IBlockState fieldBlock = TFBlocks.force_field
 				.getDefaultState()
 				.withProperty(BlockTFForceField.COLOR, BlockTFForceField.VALID_COLORS.get(4));
 		for (Rotation rotation : RotationUtil.ROTATIONS) {

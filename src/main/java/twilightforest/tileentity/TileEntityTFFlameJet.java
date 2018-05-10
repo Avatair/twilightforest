@@ -12,7 +12,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import twilightforest.TwilightForestMod;
 import twilightforest.block.BlockTFFireJet;
 import twilightforest.block.TFBlocks;
-import twilightforest.block.enums.FireJetVariant;
+import twilightforest.enums.FireJetVariant;
 import twilightforest.client.particle.TFParticleType;
 
 import java.util.List;
@@ -33,8 +33,8 @@ public class TileEntityTFFlameJet extends TileEntity implements ITickable {
 		if (++counter > 60) {
 			counter = 0;
 			// idle again
-			if (!world.isRemote && world.getBlockState(pos).getBlock() == TFBlocks.fireJet) {
-				world.setBlockState(pos, TFBlocks.fireJet.getDefaultState().withProperty(BlockTFFireJet.VARIANT, this.nextVariant));
+			if (!world.isRemote && world.getBlockState(pos).getBlock() == TFBlocks.fire_jet) {
+				world.setBlockState(pos, TFBlocks.fire_jet.getDefaultState().withProperty(BlockTFFireJet.VARIANT, this.nextVariant));
 			}
 		} else if (counter % 2 == 0) {
 			world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, this.pos.getX() + 0.5, this.pos.getY() + 1.0, this.pos.getZ() + 0.5, 0.0D, 0.0D, 0.0D);

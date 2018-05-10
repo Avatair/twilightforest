@@ -11,10 +11,11 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
 import net.minecraft.world.gen.structure.template.TemplateManager;
+import twilightforest.TFFeature;
 import twilightforest.TFTreasure;
 import twilightforest.biomes.TFBiomes;
 import twilightforest.block.TFBlocks;
-import twilightforest.structures.StructureTFComponent;
+import twilightforest.structures.StructureTFComponentOld;
 import twilightforest.util.RotationUtil;
 import twilightforest.world.TFGenCaveStalactite;
 import twilightforest.world.TFGenMyceliumBlob;
@@ -22,22 +23,23 @@ import twilightforest.world.TFGenMyceliumBlob;
 import java.util.List;
 import java.util.Random;
 
-public class ComponentTFTrollCaveMain extends StructureTFComponent {
+public class ComponentTFTrollCaveMain extends StructureTFComponentOld {
 
 	protected int size;
 	protected int height;
 
-	public static final TFGenMyceliumBlob uberousGen = new TFGenMyceliumBlob(TFBlocks.uberousSoil, 4);
+	public static final TFGenMyceliumBlob uberousGen = new TFGenMyceliumBlob(TFBlocks.uberous_soil, 4);
 
 	public ComponentTFTrollCaveMain() {
 	}
 
-	public ComponentTFTrollCaveMain(int index) {
-		super(index);
+	public ComponentTFTrollCaveMain(TFFeature feature, int index) {
+		super(feature, index);
 	}
 
 
-	public ComponentTFTrollCaveMain(World world, Random rand, int i, int x, int y, int z) {
+	public ComponentTFTrollCaveMain(TFFeature feature, World world, Random rand, int i, int x, int y, int z) {
+		super(feature, i);
 		this.setCoordBaseMode(EnumFacing.SOUTH);
 
 		// adjust y
@@ -47,7 +49,7 @@ public class ComponentTFTrollCaveMain extends StructureTFComponent {
 		this.height = 20;
 
 		int radius = this.size / 2;
-		this.boundingBox = StructureTFComponent.getComponentToAddBoundingBox(x, y, z, -radius, -this.height, -radius, this.size, this.height, this.size, EnumFacing.SOUTH);
+		this.boundingBox = StructureTFComponentOld.getComponentToAddBoundingBox(x, y, z, -radius, -this.height, -radius, this.size, this.height, this.size, EnumFacing.SOUTH);
 
 	}
 
@@ -55,21 +57,21 @@ public class ComponentTFTrollCaveMain extends StructureTFComponent {
 	 * Save to NBT
 	 */
 	@Override
-	protected void writeStructureToNBT(NBTTagCompound par1NBTTagCompound) {
-		super.writeStructureToNBT(par1NBTTagCompound);
+	protected void writeStructureToNBT(NBTTagCompound tagCompound) {
+		super.writeStructureToNBT(tagCompound);
 
-		par1NBTTagCompound.setInteger("size", this.size);
-		par1NBTTagCompound.setInteger("height", this.height);
+		tagCompound.setInteger("size", this.size);
+		tagCompound.setInteger("height", this.height);
 	}
 
 	/**
 	 * Load from NBT
 	 */
 	@Override
-	protected void readStructureFromNBT(NBTTagCompound par1NBTTagCompound, TemplateManager templateManager) {
-		super.readStructureFromNBT(par1NBTTagCompound, templateManager);
-		this.size = par1NBTTagCompound.getInteger("size");
-		this.height = par1NBTTagCompound.getInteger("height");
+	protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager templateManager) {
+		super.readStructureFromNBT(tagCompound, templateManager);
+		this.size = tagCompound.getInteger("size");
+		this.height = tagCompound.getInteger("height");
 	}
 
 	@Override
@@ -82,12 +84,12 @@ public class ComponentTFTrollCaveMain extends StructureTFComponent {
 		}
 
 		// add cloud castle
-		ComponentTFCloudCastle castle = new ComponentTFCloudCastle(this.getComponentType() + 1, boundingBox.minX + ((boundingBox.maxX - boundingBox.minX) / 2), 168, boundingBox.minZ + ((boundingBox.maxZ - boundingBox.minZ) / 2));
+		ComponentTFCloudCastle castle = new ComponentTFCloudCastle(getFeatureType(), this.getComponentType() + 1, boundingBox.minX + ((boundingBox.maxX - boundingBox.minX) / 2), 168, boundingBox.minZ + ((boundingBox.maxZ - boundingBox.minZ) / 2));
 		list.add(castle);
 		castle.buildComponent(this, list, rand);
 
 		// add vault
-		ComponentTFTrollVault vault = new ComponentTFTrollVault(this.getComponentType() + 1, boundingBox.minX + ((boundingBox.maxX - boundingBox.minX) / 2), boundingBox.minY, boundingBox.minZ + ((boundingBox.maxZ - boundingBox.minZ) / 2));
+		ComponentTFTrollVault vault = new ComponentTFTrollVault(getFeatureType(), this.getComponentType() + 1, boundingBox.minX + ((boundingBox.maxX - boundingBox.minX) / 2), boundingBox.minY, boundingBox.minZ + ((boundingBox.maxZ - boundingBox.minZ) / 2));
 		list.add(vault);
 		vault.buildComponent(this, list, rand);
 	}
@@ -97,7 +99,7 @@ public class ComponentTFTrollCaveMain extends StructureTFComponent {
 		EnumFacing direction = getStructureRelativeRotation(rotation);
 		BlockPos dest = offsetTowerCCoords(x, y, z, caveSize, direction);
 
-		ComponentTFTrollCaveConnect cave = new ComponentTFTrollCaveConnect(index, dest.getX(), dest.getY(), dest.getZ(), caveSize, caveHeight, direction);
+		ComponentTFTrollCaveConnect cave = new ComponentTFTrollCaveConnect(getFeatureType(), index, dest.getX(), dest.getY(), dest.getZ(), caveSize, caveHeight, direction);
 		// check to see if it intersects something already there
 		StructureComponent intersect = StructureComponent.findIntersecting(list, cave.getBoundingBox());
 		if (intersect == null || intersect == this) {
@@ -166,7 +168,7 @@ public class ComponentTFTrollCaveMain extends StructureTFComponent {
 					if (dist > threshold) {
 						this.setBlockState(par1World, Blocks.AIR.getDefaultState(), x, y, z, par2StructureBoundingBox);
 					} else if (dist == threshold && rand.nextInt(4) == 0 && this.getBlockStateFromPos(par1World, x, y, z, par2StructureBoundingBox).getBlock() == Blocks.STONE) {
-						this.setBlockState(par1World, TFBlocks.trollSteinn.getDefaultState(), x, y, z, par2StructureBoundingBox);
+						this.setBlockState(par1World, TFBlocks.trollsteinn.getDefaultState(), x, y, z, par2StructureBoundingBox);
 					}
 				}
 			}

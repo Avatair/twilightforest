@@ -3,11 +3,7 @@ package twilightforest.entity.passive;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAILookIdle;
-import net.minecraft.entity.ai.EntityAIPanic;
-import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAITempt;
-import net.minecraft.entity.ai.EntityAIWander;
+import net.minecraft.entity.ai.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -22,21 +18,20 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import twilightforest.TFAdvancements;
-import twilightforest.TFFeature;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootContext;
 import twilightforest.TwilightForestMod;
+import twilightforest.advancements.TFAdvancements;
+import twilightforest.TFFeature;
 import twilightforest.entity.ai.EntityAITFEatLoose;
 import twilightforest.entity.ai.EntityAITFFindLoose;
-import twilightforest.item.TFItems;
-import twilightforest.util.PlayerHelper;
 
 
 public class EntityTFQuestRam extends EntityAnimal {
-
+	public static final ResourceLocation REWARD_LOOT_TABLE = new ResourceLocation(TwilightForestMod.ID, "entities/questing_ram_rewards");
 	private static final DataParameter<Integer> DATA_COLOR = EntityDataManager.createKey(EntityTFQuestRam.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> DATA_REWARDED = EntityDataManager.createKey(EntityTFQuestRam.class, DataSerializers.BOOLEAN);
 
@@ -117,18 +112,12 @@ public class EntityTFQuestRam extends EntityAnimal {
 	 * Pay out!
 	 */
 	private void rewardQuest() {
-		dropItemWithOffset(Item.getItemFromBlock(Blocks.DIAMOND_BLOCK), 1, 1.0F);
-		dropItemWithOffset(Item.getItemFromBlock(Blocks.IRON_BLOCK), 1, 1.0F);
-		dropItemWithOffset(Item.getItemFromBlock(Blocks.EMERALD_BLOCK), 1, 1.0F);
-		dropItemWithOffset(Item.getItemFromBlock(Blocks.GOLD_BLOCK), 1, 1.0F);
-		dropItemWithOffset(Item.getItemFromBlock(Blocks.LAPIS_BLOCK), 1, 1.0F);
-		dropItemWithOffset(TFItems.crumbleHorn, 1, 1.0F);
+		LootContext ctx = new LootContext.Builder((WorldServer) world).withLootedEntity(this).build();
+		for (ItemStack s : world.getLootTableManager().getLootTableFromLocation(REWARD_LOOT_TABLE).generateLootForPools(world.rand, ctx)) {
+			entityDropItem(s, 1.0F);
+		}
 
-		rewardNearbyPlayers(this.world, this.posX, this.posY, this.posZ);
-	}
-
-	private void rewardNearbyPlayers(World world, double posX, double posY, double posZ) {
-		for (EntityPlayerMP player : world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(posX, posY, posZ, posX + 1, posY + 1, posZ + 1).grow(16.0D, 16.0D, 16.0D))) {
+		for (EntityPlayerMP player : this.world.getEntitiesWithinAABB(EntityPlayerMP.class, getEntityBoundingBox().grow(16.0D, 16.0D, 16.0D))) {
 			TFAdvancements.QUEST_RAM_COMPLETED.trigger(player);
 		}
 	}
@@ -154,11 +143,8 @@ public class EntityTFQuestRam extends EntityAnimal {
 	@Override
 	public void onLivingUpdate() {
 		super.onLivingUpdate();
-		checkAndAnimateColors();
-	}
 
-	private void checkAndAnimateColors() {
-		if (countColorsSet() > 15 && !getRewarded()) {
+		if (world.isRemote && countColorsSet() > 15 && !getRewarded()) {
 			animateAddColor(EnumDyeColor.byMetadata(this.rand.nextInt(16)), 5);
 		}
 	}
@@ -202,10 +188,10 @@ public class EntityTFQuestRam extends EntityAnimal {
 	}
 
 	public void animateAddColor(EnumDyeColor color, int iterations) {
-		int colorVal = color.getColorValue();
-		int red = colorVal >>> 16 & 0xFF;
-		int green = colorVal >>> 8 & 0xFF;
-		int blue = colorVal & 0xFF;
+		float[] colorVal = color.getColorComponentValues();
+		int red = (int) (colorVal[0] * 255F);
+		int green = (int) (colorVal[1] * 255F);
+		int blue = (int) (colorVal[2] * 255F);
 
 		for (int i = 0; i < iterations; i++) {
 			this.world.spawnParticle(EnumParticleTypes.SPELL_MOB, this.posX + (this.rand.nextDouble() - 0.5D) * this.width * 1.5, this.posY + this.rand.nextDouble() * this.height * 1.5, this.posZ + (this.rand.nextDouble() - 0.5D) * this.width * 1.5, red, green, blue);
@@ -216,15 +202,7 @@ public class EntityTFQuestRam extends EntityAnimal {
 	}
 
 	public int countColorsSet() {
-		int count = 0;
-
-		for (EnumDyeColor color : EnumDyeColor.values()) {
-			if (isColorPresent(color)) {
-				count++;
-			}
-		}
-
-		return count;
+		return Integer.bitCount(getColorFlags());
 	}
 
 	@Override

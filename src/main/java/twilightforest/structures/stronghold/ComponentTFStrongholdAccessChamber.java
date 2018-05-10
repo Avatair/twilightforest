@@ -8,6 +8,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.gen.structure.StructureComponent;
+import twilightforest.TFFeature;
 import twilightforest.block.BlockTFTrophyPedestal;
 import twilightforest.block.TFBlocks;
 
@@ -19,8 +20,8 @@ public class ComponentTFStrongholdAccessChamber extends StructureTFStrongholdCom
 	public ComponentTFStrongholdAccessChamber() {
 	}
 
-	public ComponentTFStrongholdAccessChamber(int i, EnumFacing facing, int x, int y, int z) {
-		super(i, facing, x, y, z);
+	public ComponentTFStrongholdAccessChamber(TFFeature feature, int i, EnumFacing facing, int x, int y, int z) {
+		super(feature, i, facing, x, y, z);
 	}
 
 	@Override
@@ -71,7 +72,7 @@ public class ComponentTFStrongholdAccessChamber extends StructureTFStrongholdCom
 		this.setBlockState(world, deco.pillarState, 2, 0, 2, sbb);
 
 		// pedestal
-		final IBlockState blockstateIn = TFBlocks.trophyPedestal
+		final IBlockState blockstateIn = TFBlocks.trophy_pedestal
 				.getDefaultState()
 				.withProperty(BlockTFTrophyPedestal.LATENT, true)
 				//TODO: Atomic: Verify this facing.
@@ -79,7 +80,7 @@ public class ComponentTFStrongholdAccessChamber extends StructureTFStrongholdCom
 		this.setBlockState(world, blockstateIn, 2, 1, 2, sbb);
 
 		// block point
-		this.fillWithBlocks(world, sbb, 2, -1, 2, 6, -1, 6, TFBlocks.shield.getDefaultState(), AIR, false);
+		this.fillWithBlocks(world, sbb, 2, -1, 2, 6, -1, 6, TFBlocks.stronghold_shield.getDefaultState(), AIR, false);
 
 		return true;
 	}
